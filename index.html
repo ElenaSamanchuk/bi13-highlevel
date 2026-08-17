@@ -888,13 +888,42 @@
         position: relative;
         left: auto;
         transform: none;
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: var(--space-stack);
+        justify-content: flex-start;
         width: 100%;
-        grid-template-columns: 1fr;
-        justify-items: center;
         margin-bottom: var(--space-gap);
+        padding-bottom: 8px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y;
       }
-      .aud-card { max-width: 285px; }
+      .audience-stage::-webkit-scrollbar { display: none; }
+      .aud-card {
+        flex: 0 0 calc(100% - var(--peek));
+        max-width: none;
+        scroll-snap-align: start;
+      }
       .aud-card--offset { margin-top: 0; }
+      .aud-dots,
+      .review-dots { display: flex; }
+      .results__cards {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: var(--space-gap);
+        padding-bottom: 8px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y;
+      }
+      .results__cards::-webkit-scrollbar { display: none; }
+      .review-card {
+        flex: 0 0 calc(100% - var(--peek));
+        scroll-snap-align: start;
+      }
       .path { grid-template-columns: 1fr; gap: var(--space-gap); }
       .path-card {
         grid-template-columns: 1fr;
@@ -920,6 +949,13 @@
       .tabs { width: 100%; max-width: none; }
     }
 
+    @media (max-width: 639px) {
+      .hero__visual {
+        aspect-ratio: 4 / 5;
+      }
+      .hero__visual img { object-position: center 32%; }
+    }
+
     @media (max-width: 479px) {
       .wrap { width: calc(100% - var(--pad) * 2); }
       .hero { padding: var(--space-card) 0 var(--space-gap); }
@@ -927,22 +963,6 @@
       .hero__copy { min-height: 0; padding: var(--space-gap) var(--pad) 0; }
       .hero__center { gap: var(--space-gap); padding: var(--space-card) 0; }
       .hero__cta { width: 100%; margin: 0; }
-      .audience-stage {
-        position: relative;
-        left: auto;
-        transform: none;
-        width: 100%;
-        margin-bottom: var(--space-stack);
-        display: flex;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        gap: var(--space-stack);
-        justify-content: flex-start;
-        padding-bottom: 8px;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-        touch-action: pan-x pan-y;
-      }
       .audience-compose { padding-top: 0; }
       .audience-band { height: auto; min-height: 280px; }
       .audience-band__cta {
@@ -954,15 +974,6 @@
         padding: 0 0 var(--space-gap);
         width: 100%;
       }
-      .audience-stage::-webkit-scrollbar { display: none; }
-      .aud-card {
-        flex: 0 0 calc(100% - var(--peek));
-        max-width: none;
-        scroll-snap-align: start;
-      }
-      .aud-card--offset { margin-top: 0; }
-      .aud-dots,
-      .review-dots { display: flex; }
       .prog--photo { width: 100%; max-width: none; height: auto; min-height: 0; }
       .format { grid-template-columns: 1fr; gap: var(--space-gap); }
       .format-panel { min-height: 0; padding: var(--space-gap) 0 0; }
@@ -972,21 +983,6 @@
       .tariff--mini .tariff__pay { grid-template-columns: 1fr; }
       .tariff--mini .tariff__cta { min-width: 0; width: 100%; }
       .skill-card { flex: 0 0 calc(100% - var(--peek)); }
-      .results__cards {
-        display: flex;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        gap: var(--space-gap);
-        padding-bottom: 8px;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-        touch-action: pan-x pan-y;
-      }
-      .results__cards::-webkit-scrollbar { display: none; }
-      .review-card {
-        flex: 0 0 calc(100% - var(--peek));
-        scroll-snap-align: start;
-      }
     }
 
     /* ===== FORMAT / КАК ЭТО УСТРОЕНО ===== */
@@ -2564,6 +2560,8 @@
       var SCROLL_TYPE = "bi13-highlevel-scroll";
       var VIEWPORT_TYPE = "bi13-highlevel-viewport";
       var WIDTH_TYPE = "bi13-highlevel-width";
+      var CLICK_TYPE = "bi13-highlevel-click";
+      var PAN_TYPE = "bi13-highlevel-pan";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
       var inIframe = window.parent && window.parent !== window;
@@ -2883,8 +2881,36 @@
         });
       }
 
+      function bootParentInput() {
+        if (!inIframe) return;
+        window.addEventListener("message", function (event) {
+          var data = event.data;
+          if (!data || typeof data !== "object") return;
+          if (data.type === CLICK_TYPE) {
+            var x = Number(data.x);
+            var y = Number(data.y);
+            if (!isFinite(x) || !isFinite(y)) return;
+            var el = document.elementFromPoint(x, y);
+            if (!el) return;
+            var target = el.closest("a, button, [role='tab'], .snap-dot, .faq-item__q");
+            if (target && typeof target.click === "function") target.click();
+            return;
+          }
+          if (data.type === PAN_TYPE) {
+            var px = Number(data.x);
+            var py = Number(data.y);
+            var dx = Number(data.dx) || 0;
+            if (!dx || !isFinite(px) || !isFinite(py)) return;
+            var hit = document.elementFromPoint(px, py);
+            var track = hit && hit.closest(".audience-stage, .skill-track, .results__cards");
+            if (track) track.scrollLeft -= dx;
+          }
+        });
+      }
+
       function boot() {
         if (inIframe) document.documentElement.classList.add("bi13-embedded");
+        bootParentInput();
         window.addEventListener("message", function (event) {
           var data = event.data;
           if (!data || typeof data !== "object") return;

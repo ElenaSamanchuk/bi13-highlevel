@@ -3,16 +3,22 @@
   Страница:
   https://elenasamanchuk.github.io/bi13-highlevel/
 
-  После обновления файла заново вставьте код и опубликуйте страницу.
+  Скролл страницы — нативный (shield + pointer-events:none на iframe).
+  После обновления заново вставьте код и опубликуйте страницу.
 -->
-<div id="bi13-highlevel-wrap" style="width:100%;line-height:0;background:#161616;">
+<div id="bi13-highlevel-wrap" style="position:relative;width:100%;line-height:0;background:#161616;overflow-x:clip;">
   <iframe
     id="bi13-highlevel-frame"
-    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-5"
+    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-6"
     title="BI13 — мобильная съёмка"
     loading="eager"
-    style="width:100%;border:0;display:block;min-height:600px;overflow:hidden;background:#161616;"
+    scrolling="no"
+    style="width:100%;border:0;display:block;min-height:600px;overflow:hidden;background:#161616;pointer-events:none;"
   ></iframe>
+  <div
+    id="bi13-highlevel-shield"
+    style="position:absolute;left:0;top:0;right:0;bottom:0;z-index:2;touch-action:pan-y;cursor:pointer;"
+  ></div>
 </div>
 <script>
 (function () {
@@ -21,12 +27,22 @@
   var SCROLL_TYPE = 'bi13-highlevel-scroll';
   var VIEWPORT_TYPE = 'bi13-highlevel-viewport';
   var WIDTH_TYPE = 'bi13-highlevel-width';
+  var CLICK_TYPE = 'bi13-highlevel-click';
+  var PAN_TYPE = 'bi13-highlevel-pan';
+  var TAP_MOVE_MAX = 12;
+  var PAN_MIN = 8;
 
   var wrap = document.getElementById('bi13-highlevel-wrap');
   var iframe = document.getElementById('bi13-highlevel-frame');
-  if (!iframe || !wrap) return;
+  var shield = document.getElementById('bi13-highlevel-shield');
+  if (!iframe || !wrap || !shield) return;
 
   var viewportTimer = 0;
+  var pointerStartX = 0;
+  var pointerStartY = 0;
+  var lastPanX = 0;
+  var pointerMoved = false;
+  var panningX = false;
 
   function sendWidth() {
     var width = Math.round(wrap.getBoundingClientRect().width || wrap.clientWidth || 0);
@@ -81,6 +97,58 @@
       iframe.contentWindow.postMessage({ type: PING_TYPE }, '*');
     } catch (e) {}
   }
+
+  function iframePoint(clientX, clientY) {
+    var rect = iframe.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+    return {
+      x: Math.round(clientX - rect.left),
+      y: Math.round(clientY - rect.top)
+    };
+  }
+
+  function forwardClick(clientX, clientY) {
+    var pt = iframePoint(clientX, clientY);
+    if (!pt) return;
+    try {
+      iframe.contentWindow.postMessage({ type: CLICK_TYPE, x: pt.x, y: pt.y }, '*');
+    } catch (e) {}
+  }
+
+  function forwardPan(clientX, clientY, dx) {
+    var pt = iframePoint(clientX, clientY);
+    if (!pt) return;
+    try {
+      iframe.contentWindow.postMessage({ type: PAN_TYPE, x: pt.x, y: pt.y, dx: dx }, '*');
+    } catch (e) {}
+  }
+
+  shield.addEventListener('pointerdown', function (event) {
+    pointerMoved = false;
+    panningX = false;
+    pointerStartX = event.clientX;
+    pointerStartY = event.clientY;
+    lastPanX = event.clientX;
+  }, { passive: true });
+
+  shield.addEventListener('pointermove', function (event) {
+    var dx = event.clientX - pointerStartX;
+    var dy = event.clientY - pointerStartY;
+    if (!pointerMoved && dx * dx + dy * dy > TAP_MOVE_MAX * TAP_MOVE_MAX) pointerMoved = true;
+    if (!panningX && pointerMoved && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > PAN_MIN) {
+      panningX = true;
+    }
+    if (!panningX) return;
+    var step = event.clientX - lastPanX;
+    lastPanX = event.clientX;
+    if (step) forwardPan(event.clientX, event.clientY, step);
+  }, { passive: true });
+
+  shield.addEventListener('click', function (event) {
+    if (pointerMoved) return;
+    event.preventDefault();
+    forwardClick(event.clientX, event.clientY);
+  });
 
   window.addEventListener('message', function (event) {
     var data = event.data;
