@@ -6,7 +6,7 @@
   <title>BI13 · мобильная съёмка</title>
   <meta name="description" content="Школа визуального мышления BI13. Мобильная съёмка: два уровня, один маршрут." />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- bi13 cache: 20260817-26 -->
+  <!-- bi13 cache: 20260817-28 -->
   <style>
     @font-face {
       font-family: Manrope;
@@ -2724,6 +2724,7 @@
       var WIDTH_TYPE = "bi13-highlevel-width";
       var CLICK_TYPE = "bi13-highlevel-click";
       var HRECTS_TYPE = "bi13-hrects";
+      var HSCROLL_TYPE = "bi13-hscroll";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
       var inIframe = window.parent && window.parent !== window;
@@ -3021,9 +3022,17 @@
             }
             return;
           }
+          if (data.type === HSCROLL_TYPE) {
+            var nodes = document.querySelectorAll("[data-hscroll]");
+            var node = nodes[data.i];
+            if (!node) return;
+            var dx = Number(data.dx);
+            if (!dx) return;
+            node.scrollLeft += dx;
+            return;
+          }
           if (data.type === VIEWPORT_TYPE) {
             revealByParentViewport(data.top, data.height);
-            postHRects();
             return;
           }
           if (data.type === PING_TYPE) {
@@ -3057,7 +3066,6 @@
         bootFaq();
         document.querySelectorAll("[data-hscroll]").forEach(function (el) {
           el.addEventListener("scroll", function () {
-            postHRects();
             scheduleHeight();
           }, { passive: true });
         });

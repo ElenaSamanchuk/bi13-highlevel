@@ -12,7 +12,7 @@
 <div id="bi13-highlevel-wrap" style="position:relative;width:100%;line-height:0;background:#161616;overflow:visible;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;">
   <iframe
     id="bi13-highlevel-frame"
-    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-27"
+    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-28"
     title="BI13 — мобильная съёмка"
     loading="eager"
     scrolling="no"
@@ -42,6 +42,8 @@
 
   var viewportTimer = 0;
   var holes = [];
+  var holeBusy = 0;
+  var lastHoleKey = '';
 
   iframe.setAttribute('tabindex', '-1');
   iframe.addEventListener('focus', function (event) {
@@ -159,6 +161,7 @@
       lastY = p.y;
       dragged = false;
       active = true;
+      holeBusy += 1;
       if (!fromTouch && event.pointerId != null && hole.setPointerCapture) {
         try { hole.setPointerCapture(event.pointerId); } catch (e) {}
       }
@@ -186,6 +189,7 @@
       }
       if (!active) return;
       active = false;
+      holeBusy = Math.max(0, holeBusy - 1);
       if (!dragged) {
         var p = client(event);
         forwardClick(p.x, p.y);
@@ -203,7 +207,18 @@
     hole.addEventListener('pointercancel', function (e) { onEnd(e, false); }, { passive: true });
   }
 
+  function holeKey(rects) {
+    if (!rects || !rects.length) return '';
+    return rects.map(function (r) {
+      return [r.i, Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)].join(':');
+    }).join('|');
+  }
+
   function syncHoles(rects) {
+    if (holeBusy) return;
+    var key = holeKey(rects);
+    if (key === lastHoleKey) return;
+    lastHoleKey = key;
     clearHoles();
     if (!rects || !rects.length) return;
     for (var i = 0; i < rects.length; i++) {
@@ -219,7 +234,7 @@
         'width:' + Math.round(r.width) + 'px',
         'height:' + Math.round(r.height) + 'px',
         'z-index:3',
-        'touch-action:none',
+        'touch-action:pan-y',
         '-webkit-tap-highlight-color:transparent',
         'outline:none'
       ].join(';');
