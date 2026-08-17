@@ -9,7 +9,7 @@
 <div id="bi13-highlevel-wrap" style="position:relative;width:100%;line-height:0;background:#161616;overflow-x:clip;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;">
   <iframe
     id="bi13-highlevel-frame"
-    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-25"
+    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-26"
     title="BI13 — мобильная съёмка"
     loading="eager"
     scrolling="no"
@@ -18,7 +18,7 @@
   ></iframe>
   <div
     id="bi13-highlevel-shield"
-    style="position:absolute;left:0;top:0;right:0;bottom:0;z-index:2;touch-action:pan-y pan-x manipulation;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;"
+    style="position:absolute;left:0;top:0;right:0;bottom:0;z-index:2;touch-action:pan-y;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;"
   ></div>
 </div>
 <script>
@@ -114,10 +114,14 @@
   }
 
   function hitRow(clientX, clientY) {
+    var pt = iframePoint(clientX, clientY);
+    if (!pt) return -1;
     for (var j = 0; j < hrects.length; j++) {
       var r = hrects[j];
-      if (clientX >= r.left && clientX <= r.left + r.width &&
-          clientY >= r.top && clientY <= r.top + r.height) {
+      if (
+        pt.x >= r.left && pt.x <= r.left + r.width &&
+        pt.y >= r.top && pt.y <= r.top + r.height
+      ) {
         return r.i != null ? r.i : j;
       }
     }
@@ -168,10 +172,12 @@
     }
   }, { passive: true });
 
-  function onGestureEnd() {
+  function onGestureEnd(event) {
     if (holeOpen) {
       if (rowIndex >= 0 && !hDragged) {
-        forwardClick(gestureStartX, gestureStartY);
+        var x = event && isFinite(event.clientX) ? event.clientX : gestureStartX;
+        var y = event && isFinite(event.clientY) ? event.clientY : gestureStartY;
+        forwardClick(x, y);
       }
       closeHole();
     }
@@ -180,6 +186,7 @@
 
   window.addEventListener('pointerup', onGestureEnd, { passive: true });
   window.addEventListener('pointercancel', onGestureEnd, { passive: true });
+  window.addEventListener('pointerleave', onGestureEnd, { passive: true });
 
   shield.addEventListener('click', function (event) {
     if (holeOpen) return;
