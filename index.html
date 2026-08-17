@@ -155,8 +155,8 @@
         --lh-path: 1.2;
         --lh-body: 1.4;
         --lh-tight: 1.25;
-        --space-section: 40px;
-        --space-section-end: 48px;
+        --space-section: 28px;
+        --space-section-end: 32px;
         --space-gap: 16px;
         --space-card: 16px;
         --space-stack: 12px;
@@ -183,8 +183,8 @@
       --lh-path: 1.2;
       --lh-body: 1.4;
       --lh-tight: 1.25;
-      --space-section: 40px;
-      --space-section-end: 48px;
+      --space-section: 28px;
+      --space-section-end: 32px;
       --space-gap: 16px;
       --space-card: 16px;
       --space-stack: 12px;
@@ -869,7 +869,7 @@
       .hero__center { gap: var(--space-gap); padding: var(--space-gap) 0; max-width: 100%; }
       .hero__center h1 .hero__h1-line { white-space: normal; }
       .audience-compose { padding-top: 0; }
-      .audience-band { height: auto; min-height: 360px; }
+      .audience-band { height: auto; min-height: 0; }
       .audience-band__cta {
         position: relative;
         left: auto;
@@ -972,7 +972,7 @@
       .hero__center { gap: var(--space-gap); padding: var(--space-card) 0; }
       .hero__cta { width: 100%; margin: 0; }
       .audience-compose { padding-top: 0; }
-      .audience-band { height: auto; min-height: 280px; }
+      .audience-band { height: auto; min-height: 0; }
       .audience-band__cta {
         position: relative;
         left: auto;
@@ -1477,8 +1477,9 @@
       }
       .skill-card {
         flex-basis: min(360px, 92vw);
-        height: 139px;
-        grid-template-columns: 1fr 1fr;
+        height: auto;
+        min-height: 0;
+        grid-template-columns: 1fr;
       }
     }
 
@@ -1977,7 +1978,27 @@
     }
 
     @media (max-width: 959px) {
-      #skill { overflow: visible !important; }
+      .hero { padding: 16px 0 24px !important; }
+      .hero__copy {
+        min-height: 0 !important;
+        grid-template-rows: auto auto auto;
+      }
+      #audience { padding: 28px 0 0 !important; }
+      #path { padding: 28px 0 0 !important; }
+      #program { padding: 28px 0 32px !important; }
+      #format { padding: 28px 0 32px !important; }
+      #skill { padding: 28px 0 32px !important; overflow: visible !important; }
+      #pricing { padding: 28px 0 32px !important; }
+      #speaker { padding: 28px 0 16px !important; }
+      #results { padding: 16px 0 28px !important; }
+      #faq { padding: 28px 0 32px !important; }
+      #final { padding: 16px 0 28px !important; }
+      .audience-band { height: auto !important; min-height: 0 !important; }
+      .audience-band__cta { padding-bottom: 16px !important; }
+      .faq-photo { height: auto !important; aspect-ratio: 340 / 276; }
+      .final-stage { gap: 16px; min-height: 0 !important; }
+      .final-center { padding: 16px 12px 24px; }
+      .speaker__name { line-height: 1.2 !important; }
       .format {
         grid-template-columns: 1fr !important;
         width: min(100% - var(--pad) * 2, 1166px) !important;
@@ -2041,13 +2062,11 @@
       }
       .skill-card__body p { max-width: none; }
       .skill-card__num { position: static; margin-top: 8px; }
-      #speaker { padding: 40px 0 24px !important; }
       .speaker { grid-template-columns: 1fr !important; }
       .speaker__side { min-height: 0 !important; }
       .speaker__quote { font-size: 16px !important; line-height: 1.25 !important; }
       .speaker__quote-box { padding: 14px 16px !important; }
       .speaker__quote cite { margin-top: 8px !important; }
-      #results { padding-top: 8px !important; }
       .path-card h3 { font-size: 16px !important; }
       .prog, .prog--tint { padding: 10px 14px !important; min-height: 0 !important; }
       .tabs { width: 100% !important; max-width: none !important; overflow: hidden !important; }
@@ -2653,7 +2672,8 @@
       var SCROLL_TYPE = "bi13-highlevel-scroll";
       var VIEWPORT_TYPE = "bi13-highlevel-viewport";
       var WIDTH_TYPE = "bi13-highlevel-width";
-      var SCROLLBY_TYPE = "bi13-highlevel-scrollby";
+      var CLICK_TYPE = "bi13-highlevel-click";
+      var HSCROLL_TYPE = "bi13-highlevel-hscroll";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
       var inIframe = window.parent && window.parent !== window;
@@ -2707,14 +2727,35 @@
         ));
       }
 
+      function postHScrollRects() {
+        if (!inIframe) return;
+        var nodes = document.querySelectorAll("[data-hscroll]");
+        var rects = [];
+        for (var i = 0; i < nodes.length; i++) {
+          var r = nodes[i].getBoundingClientRect();
+          if (r.width < 8 || r.height < 8) continue;
+          rects.push({
+            left: Math.round(r.left),
+            top: Math.round(r.top),
+            width: Math.round(r.width),
+            height: Math.round(r.height)
+          });
+        }
+        postToParent({ type: HSCROLL_TYPE, rects: rects });
+      }
+
       function sendHeight() {
         heightRaf = 0;
         if (!inIframe) return;
         var height = measure();
         if (!height || height < 100) return;
-        if (Math.abs(height - lastHeight) < 2) return;
+        if (Math.abs(height - lastHeight) < 2) {
+          postHScrollRects();
+          return;
+        }
         lastHeight = height;
         postToParent({ type: RESIZE_TYPE, height: height });
+        postHScrollRects();
       }
 
       function scheduleHeight() {
@@ -2906,55 +2947,25 @@
         });
       }
 
-      function bootParentScroll() {
+      function bootParentClicks() {
         if (!inIframe) return;
-        var lock = null;
-        var lastY = 0;
-        var startX = 0;
-        var startY = 0;
-
-        function inHScroll(el) {
-          return !!(el && el.closest && el.closest("[data-hscroll]"));
-        }
-
-        document.addEventListener("wheel", function (event) {
-          if (inHScroll(event.target) && Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
-          if (event.cancelable) event.preventDefault();
-          var dy = event.deltaY;
-          if (event.deltaMode === 1) dy *= 16;
-          if (event.deltaMode === 2) dy *= window.innerHeight || 800;
-          postToParent({ type: SCROLLBY_TYPE, dy: dy });
-        }, { passive: false });
-
-        document.addEventListener("touchstart", function (event) {
-          var t = event.changedTouches[0];
-          if (!t) return;
-          lock = null;
-          startX = t.clientX;
-          startY = t.clientY;
-          lastY = t.clientY;
-        }, { passive: true });
-
-        document.addEventListener("touchmove", function (event) {
-          var t = event.changedTouches[0];
-          if (!t) return;
-          var dx = t.clientX - startX;
-          var dy = t.clientY - startY;
-          if (!lock && (dx * dx + dy * dy > 64)) {
-            lock = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
-          }
-          if (lock === "x" || (lock !== "y" && inHScroll(event.target))) return;
-          if (lock !== "y") return;
-          if (event.cancelable) event.preventDefault();
-          var step = lastY - t.clientY;
-          lastY = t.clientY;
-          if (step) postToParent({ type: SCROLLBY_TYPE, dy: step });
-        }, { passive: false });
+        window.addEventListener("message", function (event) {
+          var data = event.data;
+          if (!data || data.type !== CLICK_TYPE) return;
+          var x = Number(data.x);
+          var y = Number(data.y);
+          if (!isFinite(x) || !isFinite(y)) return;
+          var el = document.elementFromPoint(x, y);
+          if (!el) return;
+          var target = el.closest("a, button, [data-tab], [role='button']");
+          if (!target || typeof target.click !== "function") return;
+          target.click();
+        });
       }
 
       function boot() {
         if (inIframe) document.documentElement.classList.add("bi13-embedded");
-        bootParentScroll();
+        bootParentClicks();
         window.addEventListener("message", function (event) {
           var data = event.data;
           if (!data || typeof data !== "object") return;

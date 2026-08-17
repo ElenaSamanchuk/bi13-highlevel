@@ -3,33 +3,45 @@
   Страница:
   https://elenasamanchuk.github.io/bi13-highlevel/
 
-  Iframe с pointer-events:auto. Вертикаль — scrollBy от iframe.
+  Скролл — нативный (shield + pointer-events:none).
   После обновления заново вставьте код и опубликуйте страницу.
 -->
 <div id="bi13-highlevel-wrap" style="position:relative;width:100%;line-height:0;background:#161616;overflow-x:clip;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;outline:none;">
   <iframe
     id="bi13-highlevel-frame"
-    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-13"
+    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-15"
     title="BI13 — мобильная съёмка"
     loading="eager"
     scrolling="no"
-    style="width:100%;border:0;display:block;min-height:600px;overflow:hidden;background:#161616;pointer-events:auto;-webkit-tap-highlight-color:transparent;outline:none;"
+    style="width:100%;border:0;display:block;min-height:600px;overflow:hidden;background:#161616;pointer-events:none;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;outline:none;"
   ></iframe>
+  <div
+    id="bi13-highlevel-shield"
+    style="position:absolute;left:0;top:0;right:0;bottom:0;z-index:2;touch-action:pan-y;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;outline:none;"
+  ></div>
 </div>
 <script>
 (function () {
   var RESIZE_TYPE = 'bi13-highlevel-resize';
   var PING_TYPE = 'bi13-highlevel-ping';
   var SCROLL_TYPE = 'bi13-highlevel-scroll';
-  var SCROLLBY_TYPE = 'bi13-highlevel-scrollby';
   var VIEWPORT_TYPE = 'bi13-highlevel-viewport';
   var WIDTH_TYPE = 'bi13-highlevel-width';
+  var CLICK_TYPE = 'bi13-highlevel-click';
+  var HSCROLL_TYPE = 'bi13-highlevel-hscroll';
+  var TAP_MOVE_MAX = 12;
 
   var wrap = document.getElementById('bi13-highlevel-wrap');
   var iframe = document.getElementById('bi13-highlevel-frame');
-  if (!iframe || !wrap) return;
+  var shield = document.getElementById('bi13-highlevel-shield');
+  if (!iframe || !wrap || !shield) return;
 
   var viewportTimer = 0;
+  var hscrollRects = [];
+  var pointerStartX = 0;
+  var pointerStartY = 0;
+  var pointerMoved = false;
+  var holeOpen = false;
 
   function sendWidth() {
     var width = Math.round(wrap.getBoundingClientRect().width || wrap.clientWidth || 0);
@@ -85,6 +97,73 @@
     } catch (e) {}
   }
 
+  function iframePoint(clientX, clientY) {
+    var rect = iframe.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+    return {
+      x: Math.round(clientX - rect.left),
+      y: Math.round(clientY - rect.top)
+    };
+  }
+
+  function hitHScroll(clientX, clientY) {
+    var pt = iframePoint(clientX, clientY);
+    if (!pt) return false;
+    for (var i = 0; i < hscrollRects.length; i++) {
+      var r = hscrollRects[i];
+      if (pt.x >= r.left && pt.x <= r.left + r.width && pt.y >= r.top && pt.y <= r.top + r.height) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function openHole() {
+    holeOpen = true;
+    iframe.style.pointerEvents = 'auto';
+    shield.style.pointerEvents = 'none';
+  }
+
+  function closeHole() {
+    if (!holeOpen) return;
+    holeOpen = false;
+    iframe.style.pointerEvents = 'none';
+    shield.style.pointerEvents = 'auto';
+  }
+
+  function forwardClick(clientX, clientY) {
+    var pt = iframePoint(clientX, clientY);
+    if (!pt) return;
+    try {
+      iframe.contentWindow.postMessage({ type: CLICK_TYPE, x: pt.x, y: pt.y }, '*');
+    } catch (e) {}
+  }
+
+  shield.addEventListener('pointerdown', function (event) {
+    pointerMoved = false;
+    pointerStartX = event.clientX;
+    pointerStartY = event.clientY;
+    if (hitHScroll(event.clientX, event.clientY)) openHole();
+  }, { passive: true });
+
+  shield.addEventListener('pointermove', function (event) {
+    if (pointerMoved) return;
+    var dx = event.clientX - pointerStartX;
+    var dy = event.clientY - pointerStartY;
+    if (dx * dx + dy * dy > TAP_MOVE_MAX * TAP_MOVE_MAX) pointerMoved = true;
+  }, { passive: true });
+
+  shield.addEventListener('click', function (event) {
+    if (pointerMoved || holeOpen) return;
+    event.preventDefault();
+    forwardClick(event.clientX, event.clientY);
+  });
+
+  window.addEventListener('pointerup', closeHole, { passive: true });
+  window.addEventListener('pointercancel', closeHole, { passive: true });
+  window.addEventListener('touchend', closeHole, { passive: true });
+  window.addEventListener('touchcancel', closeHole, { passive: true });
+
   window.addEventListener('message', function (event) {
     var data = event.data;
     if (!data || typeof data !== 'object') return;
@@ -93,13 +172,12 @@
       sendViewport();
       return;
     }
-    if (data.type === SCROLL_TYPE) {
-      scrollToOffset(data.offset);
+    if (data.type === HSCROLL_TYPE && data.rects) {
+      hscrollRects = data.rects;
       return;
     }
-    if (data.type === SCROLLBY_TYPE) {
-      var dy = Number(data.dy) || 0;
-      if (dy) window.scrollBy(0, dy);
+    if (data.type === SCROLL_TYPE) {
+      scrollToOffset(data.offset);
     }
   });
 
