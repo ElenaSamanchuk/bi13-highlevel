@@ -2,11 +2,13 @@
   Вставьте этот код в блок «HTML-код» (T123) на Тильде.
   Страница:
   https://elenasamanchuk.github.io/bi13-highlevel/
+
+  После обновления файла заново вставьте код и опубликуйте страницу.
 -->
 <div id="bi13-highlevel-wrap" style="width:100%;line-height:0;background:#161616;">
   <iframe
     id="bi13-highlevel-frame"
-    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-1"
+    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-2"
     title="BI13 — мобильная съёмка"
     loading="eager"
     style="width:100%;border:0;display:block;min-height:600px;overflow:hidden;background:#161616;"
@@ -17,14 +19,39 @@
   var RESIZE_TYPE = 'bi13-highlevel-resize';
   var PING_TYPE = 'bi13-highlevel-ping';
   var SCROLL_TYPE = 'bi13-highlevel-scroll';
+  var VIEWPORT_TYPE = 'bi13-highlevel-viewport';
 
   var wrap = document.getElementById('bi13-highlevel-wrap');
   var iframe = document.getElementById('bi13-highlevel-frame');
   if (!iframe || !wrap) return;
 
+  var viewportTimer = 0;
+
   function applyHeight(height) {
     if (!height || height < 100) return;
     iframe.style.height = height + 'px';
+  }
+
+  function sendViewportNow() {
+    var rect = iframe.getBoundingClientRect();
+    var vv = window.visualViewport;
+    var viewHeight = vv ? vv.height : (window.innerHeight || document.documentElement.clientHeight || 0);
+    var top = Math.max(0, -rect.top);
+    try {
+      iframe.contentWindow.postMessage({
+        type: VIEWPORT_TYPE,
+        top: Math.round(top),
+        height: Math.round(viewHeight)
+      }, '*');
+    } catch (e) {}
+  }
+
+  function sendViewport() {
+    if (viewportTimer) return;
+    viewportTimer = setTimeout(function () {
+      viewportTimer = 0;
+      sendViewportNow();
+    }, 80);
   }
 
   function scrollToOffset(offset) {
@@ -33,20 +60,12 @@
       (window.scrollY || window.pageYOffset || 0) +
       rect.top +
       (Number(offset) || 0);
-    window.scrollTo({ top: Math.max(0, Math.round(y)), behavior: 'smooth' });
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({
+      top: Math.max(0, Math.round(y)),
+      behavior: reduced ? 'auto' : 'smooth'
+    });
   }
-
-  window.addEventListener('message', function (event) {
-    var data = event.data;
-    if (!data || typeof data !== 'object') return;
-    if (data.type === RESIZE_TYPE) {
-      applyHeight(Number(data.height));
-      return;
-    }
-    if (data.type === SCROLL_TYPE) {
-      scrollToOffset(data.offset);
-    }
-  });
 
   function ping() {
     try {
@@ -54,16 +73,44 @@
     } catch (e) {}
   }
 
-  iframe.addEventListener('load', function () {
-    ping();
-    [50, 150, 400, 1000].forEach(function (ms) {
-      setTimeout(ping, ms);
-    });
+  window.addEventListener('message', function (event) {
+    var data = event.data;
+    if (!data || typeof data !== 'object') return;
+    if (data.type === RESIZE_TYPE) {
+      applyHeight(Number(data.height));
+      sendViewport();
+      return;
+    }
+    if (data.type === SCROLL_TYPE) {
+      scrollToOffset(data.offset);
+    }
   });
 
-  window.addEventListener('resize', ping);
+  window.addEventListener('resize', function () {
+    ping();
+    sendViewport();
+  });
+  window.addEventListener('scroll', sendViewport, { passive: true });
   if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', ping);
+    window.visualViewport.addEventListener('resize', function () {
+      ping();
+      sendViewport();
+    });
+    window.visualViewport.addEventListener('scroll', sendViewport, { passive: true });
   }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(sendViewport).observe(wrap);
+  }
+
+  iframe.addEventListener('load', function () {
+    ping();
+    sendViewportNow();
+    [50, 150, 400, 1000].forEach(function (ms) {
+      setTimeout(function () {
+        ping();
+        sendViewportNow();
+      }, ms);
+    });
+  });
 })();
 </script>

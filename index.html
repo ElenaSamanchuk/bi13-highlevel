@@ -659,6 +659,37 @@
       }
       .tariff--mini .tariff__cta { min-width: 0; width: 100%; }
       .skill-card { flex: 0 0 272px; }
+      .audience-stage {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 12px;
+        justify-content: flex-start;
+        padding-bottom: 8px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .audience-stage::-webkit-scrollbar { display: none; }
+      .aud-card {
+        flex: 0 0 248px;
+        max-width: 248px;
+        scroll-snap-align: start;
+      }
+      .aud-card--offset { margin-top: 0; }
+      .results__cards {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 16px;
+        padding-bottom: 8px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .results__cards::-webkit-scrollbar { display: none; }
+      .review-card {
+        flex: 0 0 260px;
+        scroll-snap-align: start;
+      }
     }
 
     /* ===== FORMAT / КАК ЭТО УСТРОЕНО ===== */
@@ -1102,6 +1133,7 @@
       margin-right: calc(50% - 50vw);
       padding-right: var(--pad);
       scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
     }
     .skill-track::-webkit-scrollbar { display: none; }
     .skill-card {
@@ -1619,33 +1651,55 @@
         padding: 0 20px;
       }
     }
+
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(14px);
+      transition:
+        opacity 0.45s ease-in-out var(--reveal-delay, 0ms),
+        transform 0.45s ease-in-out var(--reveal-delay, 0ms);
+    }
+    [data-reveal="in"] {
+      opacity: 1;
+      transform: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      [data-reveal] {
+        transition: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+      }
+      .skill-track { scroll-behavior: auto; }
+    }
   </style>
 </head>
 <body>
 <div id="page-root">
   <section class="hero" aria-label="Hero">
     <div class="hero__row">
-      <div class="hero__visual">
+      <div class="hero__visual" data-reveal>
         <img src="assets/hero-main.png" alt="" />
       </div>
       <div class="hero__copy">
-        <div class="hero-badge">
+        <div class="hero-badge" data-reveal style="--reveal-delay: 80ms">
           <i aria-hidden="true"></i>
           [ старт продаж 17 августа ]
         </div>
         <div class="hero__center">
-          <h1>Школа визуального мышления BI13</h1>
-          <p class="hero__sub">Ты не учишься снимать, ты учишься замечать</p>
-          <p class="hero__lead">Контент — это язык современного мира.<br />Мобильная съёмка: два уровня, один маршрут.</p>
+          <h1 data-reveal style="--reveal-delay: 140ms">Школа визуального мышления BI13</h1>
+          <p class="hero__sub" data-reveal style="--reveal-delay: 200ms">Ты не учишься снимать, ты учишься замечать</p>
+          <p class="hero__lead" data-reveal style="--reveal-delay: 260ms">Контент — это язык современного мира.<br />Мобильная съёмка: два уровня, один маршрут.</p>
         </div>
-        <a class="hero__cta" href="#pricing">Посмотреть тарифы</a>
+        <a class="hero__cta" href="#pricing" data-reveal style="--reveal-delay: 320ms">Посмотреть тарифы</a>
       </div>
     </div>
   </section>
 
   <section class="section" id="audience">
     <div class="wrap">
-      <h2 class="section-title">Для кого этот путь</h2>
+      <h2 class="section-title" data-reveal>Для кого этот путь</h2>
     </div>
     <div class="audience-compose">
       <div class="audience-band">
@@ -1658,7 +1712,7 @@
         </div>
       </div>
       <div class="audience-stage">
-        <article class="aud-card">
+        <article class="aud-card" data-reveal>
           <div class="aud-card__img"><img src="assets/card-01.png" alt="" loading="lazy" /></div>
           <h3>С нуля</h3>
           <div class="aud-card__row">
@@ -1666,7 +1720,7 @@
             <span>01</span>
           </div>
         </article>
-        <article class="aud-card">
+        <article class="aud-card" data-reveal style="--reveal-delay: 70ms">
           <div class="aud-card__img"><img src="assets/card-02.png" alt="" loading="lazy" /></div>
           <h3>Уже снимаю</h3>
           <div class="aud-card__row">
@@ -1674,7 +1728,7 @@
             <span>02</span>
           </div>
         </article>
-        <article class="aud-card aud-card--offset">
+        <article class="aud-card aud-card--offset" data-reveal style="--reveal-delay: 140ms">
           <div class="aud-card__img"><img src="assets/card-03.png" alt="" loading="lazy" /></div>
           <h3>Закрыть навык</h3>
           <div class="aud-card__row">
@@ -1682,7 +1736,7 @@
             <span>03</span>
           </div>
         </article>
-        <article class="aud-card">
+        <article class="aud-card" data-reveal style="--reveal-delay: 210ms">
           <div class="aud-card__img"><img src="assets/card-04.png" alt="" loading="lazy" /></div>
           <h3>Для своего дела</h3>
           <div class="aud-card__row">
@@ -1696,9 +1750,9 @@
 
   <section class="section" id="path">
     <div class="wrap">
-      <h2 class="section-title">Один путь. Два уровня</h2>
+      <h2 class="section-title" data-reveal>Один путь. Два уровня</h2>
       <div class="path">
-        <article class="path-card">
+        <article class="path-card" data-reveal>
           <div class="path-card__img"><img src="assets/path-a.png" alt="" loading="lazy" /></div>
           <div>
             <div class="path-card__meta">
@@ -1709,7 +1763,7 @@
             <p>Начинаешь снимать красиво и осознанно. Не случайно — системно.</p>
           </div>
         </article>
-        <article class="path-card">
+        <article class="path-card" data-reveal style="--reveal-delay: 80ms">
           <div class="path-card__img"><img src="assets/path-b.png" alt="" loading="lazy" /></div>
           <div>
             <div class="path-card__meta">
@@ -1726,8 +1780,8 @@
 
   <section class="section" id="program">
     <div class="wrap">
-      <h2 class="section-title">Что внутри</h2>
-      <div class="tabs" role="tablist">
+      <h2 class="section-title" data-reveal>Что внутри</h2>
+      <div class="tabs" role="tablist" data-reveal style="--reveal-delay: 60ms">
         <button type="button" class="is-active" data-tab="aesthetic" role="tab" aria-selected="true">Aesthetic — Уровень 1</button>
         <button type="button" data-tab="highlevel" role="tab" aria-selected="false">High Level — Уровень 2</button>
       </div>
@@ -1881,7 +1935,7 @@
           <span class="c-tl"></span><span class="c-tr"></span>
           <span class="c-bl"></span><span class="c-br"></span>
         </div>
-        <h2 class="section-title" id="format-title">Как это устроено</h2>
+        <h2 class="section-title" id="format-title" data-reveal>Как это устроено</h2>
         <div class="format-features">
           <article class="format-feature">
             <span class="format-feature__mark">&gt;</span>
@@ -1911,10 +1965,10 @@
 
   <section class="section" id="pricing">
     <div class="wrap">
-      <h2 class="section-title">Выбери свой вход</h2>
+      <h2 class="section-title" data-reveal>Выбери свой вход</h2>
 
       <div class="pricing-packs">
-        <article class="tariff tariff--pack">
+        <article class="tariff tariff--pack" data-reveal>
           <span class="tariff__badge tariff__badge--light">без обратной связи</span>
           <div class="tariff__intro">
             <h3 class="tariff__title">Aesthetic + High Level</h3>
@@ -1935,7 +1989,7 @@
           </div>
         </article>
 
-        <article class="tariff tariff--pack tariff--featured">
+        <article class="tariff tariff--pack tariff--featured" data-reveal style="--reveal-delay: 80ms">
           <span class="tariff__badge">с обратной связью</span>
           <div class="tariff__intro">
             <h3 class="tariff__title">Aesthetic + High Level</h3>
@@ -1957,10 +2011,10 @@
         </article>
       </div>
 
-      <p class="pricing-bridge">[ Начни с малого, если сомневаешься ]</p>
+      <p class="pricing-bridge" data-reveal>[ Начни с малого, если сомневаешься ]</p>
 
       <div class="pricing-starter">
-        <article class="tariff tariff--mini">
+        <article class="tariff tariff--mini" data-reveal>
           <span class="tariff__badge tariff__badge--light">без обратной связи</span>
           <div class="tariff__intro">
             <h3 class="tariff__title">Aesthetic</h3>
@@ -1981,7 +2035,7 @@
           </div>
         </article>
 
-        <article class="tariff tariff--mini">
+        <article class="tariff tariff--mini" data-reveal style="--reveal-delay: 80ms">
           <span class="tariff__badge">с обратной связью</span>
           <div class="tariff__intro">
             <h3 class="tariff__title">Aesthetic</h3>
@@ -2008,7 +2062,7 @@
   <section class="section" id="skill" aria-labelledby="skill-title">
     <div class="wrap">
       <div class="skill-head">
-        <h2 class="section-title" id="skill-title">Навык, который ты заберёшь с собой в любую профессию</h2>
+        <h2 class="section-title" id="skill-title" data-reveal>Навык, который ты заберёшь с собой в любую профессию</h2>
         <div class="skill-nav">
           <button type="button" id="skillPrev" aria-label="Назад">
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg>
@@ -2020,7 +2074,7 @@
       </div>
     </div>
     <div class="wrap">
-      <div class="skill-track" id="skillTrack" tabindex="0">
+      <div class="skill-track" id="skillTrack" tabindex="0" data-reveal>
         <article class="skill-card">
           <div class="skill-card__img"><img src="assets/skill/s1.webp" alt="" loading="lazy" /></div>
           <div class="skill-card__body">
@@ -2067,10 +2121,10 @@
 
   <section class="section" id="speaker" aria-label="Кто ведёт">
     <div class="wrap speaker">
-      <div class="speaker__main">
+      <div class="speaker__main" data-reveal>
         <img src="assets/speaker/hero.png" alt="Настя Бебякина" loading="lazy" />
       </div>
-      <div class="speaker__side">
+      <div class="speaker__side" data-reveal style="--reveal-delay: 100ms">
         <span class="speaker__label">Кто ведёт</span>
         <h2 class="speaker__name">Настя Бебякина</h2>
         <p class="speaker__bio">
@@ -2089,7 +2143,7 @@
 
   <section class="section" id="results" aria-labelledby="results-title">
     <div class="wrap results">
-      <div class="results__intro">
+      <div class="results__intro" data-reveal>
         <span class="results__line" aria-hidden="true">
           <img src="assets/reviews/accent-line.svg" alt="" />
         </span>
@@ -2100,7 +2154,7 @@
         <a class="results__cta" href="#pricing">Хочу такие же результаты</a>
       </div>
       <div class="results__cards">
-        <article class="review-card">
+        <article class="review-card" data-reveal>
           <div class="review-card__person">
             <div class="review-card__avatar">
               <img src="assets/reviews/olga.png" alt="" loading="lazy" />
@@ -2113,7 +2167,7 @@
           <p class="review-card__quote">«Теперь я не завишу от времени суток»</p>
           <p class="review-card__text">Снимала только при дневном свете → научилась работать с искусственным светом, теперь делает контент в любых условиях</p>
         </article>
-        <article class="review-card">
+        <article class="review-card" data-reveal style="--reveal-delay: 70ms">
           <div class="review-card__person">
             <div class="review-card__avatar">
               <img src="assets/reviews/dasha.png" alt="" loading="lazy" />
@@ -2126,7 +2180,7 @@
           <p class="review-card__quote">«Перестала бояться съёмок ночью — выходит реально красиво»</p>
           <p class="review-card__text">Снимала для блога «для себя» → получила первые заказы, потому что освоила UGC-форматы и показала портфолио</p>
         </article>
-        <article class="review-card">
+        <article class="review-card" data-reveal style="--reveal-delay: 140ms">
           <div class="review-card__person">
             <div class="review-card__avatar">
               <img src="assets/reviews/stas.png" alt="" loading="lazy" />
@@ -2145,12 +2199,12 @@
 
   <section class="section" id="faq" aria-labelledby="faq-title">
     <div class="wrap">
-      <h2 class="section-title" id="faq-title">Вопросы</h2>
+      <h2 class="section-title" id="faq-title" data-reveal>Вопросы</h2>
       <div class="faq-layout">
-        <div class="faq-photo">
+        <div class="faq-photo" data-reveal>
           <img src="assets/faq-photo.jpg" alt="" loading="lazy" />
         </div>
-        <div class="faq-list">
+        <div class="faq-list" data-reveal style="--reveal-delay: 80ms">
           <details class="faq-item">
             <summary>Можно купить только Aesthetic?</summary>
             <p>Да. Доплатить и добрать High Level можно позже (условия добора уточняются).</p>
@@ -2186,7 +2240,7 @@
         <span class="final-rail__line"></span>
         <span class="final-rail__label">BI13</span>
       </div>
-      <div class="final-center">
+      <div class="final-center" data-reveal>
         <h2 id="final-title">Начни путь</h2>
         <p>Ближайший поток: 17 августа. High Level — старт 12 октября.</p>
         <a class="final-center__cta" href="#pricing">Выбрать тариф</a>
@@ -2208,11 +2262,13 @@
       var RESIZE_TYPE = "bi13-highlevel-resize";
       var PING_TYPE = "bi13-highlevel-ping";
       var SCROLL_TYPE = "bi13-highlevel-scroll";
+      var VIEWPORT_TYPE = "bi13-highlevel-viewport";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
       var inIframe = window.parent && window.parent !== window;
       var lastHeight = 0;
       var heightRaf = 0;
+      var revealObserver = null;
       var root = document.getElementById("page-root");
 
       function postToParent(payload) {
@@ -2306,6 +2362,87 @@
         scrollToId(id);
       });
 
+      function prefersReducedMotion() {
+        return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      }
+
+      function revealAll() {
+        document.querySelectorAll("[data-reveal]").forEach(function (el) {
+          el.setAttribute("data-reveal", "in");
+        });
+      }
+
+      function revealByParentViewport(viewTop, viewHeight) {
+        var top = Number(viewTop) || 0;
+        var bottom = top + (Number(viewHeight) || 0);
+        document.querySelectorAll("[data-reveal]").forEach(function (el) {
+          if (el.getAttribute("data-reveal") === "in") return;
+          var rect = el.getBoundingClientRect();
+          if (rect.bottom > top + 24 && rect.top < bottom - 24) {
+            el.setAttribute("data-reveal", "in");
+          }
+        });
+      }
+
+      function bootReveal() {
+        if (prefersReducedMotion()) {
+          revealAll();
+          return;
+        }
+        if (inIframe) {
+          document.querySelectorAll("[data-reveal]").forEach(function (el) {
+            if (!el.getAttribute("data-reveal") || el.getAttribute("data-reveal") === "") {
+              el.setAttribute("data-reveal", "out");
+            }
+          });
+          return;
+        }
+        if (typeof IntersectionObserver === "undefined") {
+          revealAll();
+          return;
+        }
+        revealObserver = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (!entry.isIntersecting) return;
+              entry.target.setAttribute("data-reveal", "in");
+              revealObserver.unobserve(entry.target);
+            });
+          },
+          { rootMargin: "0px 0px -8% 0px", threshold: 0.12 }
+        );
+        document.querySelectorAll("[data-reveal]").forEach(function (el) {
+          el.setAttribute("data-reveal", "out");
+          revealObserver.observe(el);
+        });
+      }
+
+      function isSameSiteHref(href) {
+        if (!href) return true;
+        if (href.charAt(0) === "#" || href.charAt(0) === "/" || href.charAt(0) === "?") return true;
+        if (href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0) return true;
+        try {
+          var url = new URL(href, window.location.href);
+          var host = url.hostname.replace(/^www\./, "");
+          return host === "bi13pro.ru" || host === window.location.hostname.replace(/^www\./, "");
+        } catch (e) {
+          return true;
+        }
+      }
+
+      function applyLinkTargets() {
+        document.querySelectorAll("a[href]").forEach(function (a) {
+          var href = a.getAttribute("href") || "";
+          if (isSameSiteHref(href)) {
+            a.removeAttribute("target");
+            if ((a.getAttribute("rel") || "").indexOf("noopener") !== -1) a.removeAttribute("rel");
+            return;
+          }
+          a.setAttribute("target", "_blank");
+          a.setAttribute("rel", "noopener");
+        });
+      }
+
       var tabs = document.querySelectorAll("[data-tab]");
       var panels = {
         aesthetic: document.getElementById("panel-aesthetic"),
@@ -2364,6 +2501,10 @@
         window.addEventListener("message", function (event) {
           var data = event.data;
           if (!data || typeof data !== "object") return;
+          if (data.type === VIEWPORT_TYPE) {
+            revealByParentViewport(data.top, data.height);
+            return;
+          }
           if (data.type === PING_TYPE) {
             lastHeight = 0;
             scheduleHeight();
@@ -2391,6 +2532,8 @@
         [120, 400, 1000, 2000].forEach(function (ms) {
           setTimeout(scheduleHeight, ms);
         });
+        applyLinkTargets();
+        bootReveal();
         applyTildaScale();
         syncNav();
         scheduleHeight();
