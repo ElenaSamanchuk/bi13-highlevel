@@ -420,9 +420,6 @@
     });
   });
   scheduleLoadWatch();
-  setTimeout(function () {
-    if (!iframeLoaded && !contentReady) tryNextSource();
-  }, READY_TIMEOUT_MS);
   sendWidth();
   setTimeout(sendWidth, 100);
   setTimeout(sendWidth, 500);
