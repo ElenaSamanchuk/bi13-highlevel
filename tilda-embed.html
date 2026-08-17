@@ -12,7 +12,7 @@
 <div id="bi13-highlevel-wrap" style="position:relative;width:100%;line-height:0;background:#161616;overflow:visible;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;">
   <iframe
     id="bi13-highlevel-frame"
-    src="about:blank"
+    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-38"
     title="BI13 — мобильная съёмка"
     loading="eager"
     scrolling="no"
@@ -58,14 +58,20 @@
   var fallbackLink = document.getElementById('bi13-highlevel-fallback-link');
   if (!iframe || !wrap || !shield) return;
 
-  var CACHE = '20260817-37';
+  var CACHE = '20260817-38';
   var SOURCES = [
     'https://elenasamanchuk.github.io/bi13-highlevel/?v=' + CACHE,
-    'https://cdn.jsdelivr.net/gh/ElenaSamanchuk/bi13-highlevel@main/index.html?v=' + CACHE
+    'https://raw.githack.com/ElenaSamanchuk/bi13-highlevel/main/index.html?v=' + CACHE
     /* После настройки CNAME на GitHub Pages добавьте первым:
     'https://hl.bi13pro.ru/?v=' + CACHE, */
   ];
   var OPEN_URL = 'https://elenasamanchuk.github.io/bi13-highlevel/';
+  var READY_TIMEOUT_MS = 20000;
+  var ALLOWED_ORIGINS = [
+    'https://elenasamanchuk.github.io',
+    'https://raw.githack.com',
+    'https://hl.bi13pro.ru'
+  ];
 
   var viewportTimer = 0;
   var holes = [];
@@ -74,6 +80,15 @@
   var sourceIndex = 0;
   var contentReady = false;
   var loadWatch = 0;
+  var iframeLoaded = false;
+
+  function isAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (var i = 0; i < ALLOWED_ORIGINS.length; i++) {
+      if (origin === ALLOWED_ORIGINS[i]) return true;
+    }
+    return false;
+  }
 
   function markReady() {
     contentReady = true;
@@ -108,14 +123,19 @@
     if (loadWatch) clearTimeout(loadWatch);
     loadWatch = setTimeout(function () {
       loadWatch = 0;
-      if (!contentReady) tryNextSource();
-    }, 10000);
+      if (!contentReady && iframeLoaded) tryNextSource();
+    }, READY_TIMEOUT_MS);
   }
 
   function loadSource(index) {
     sourceIndex = index;
     contentReady = false;
+    iframeLoaded = false;
     hideFallback();
+    if (index === 0 && iframe.getAttribute('src') === SOURCES[0]) {
+      scheduleLoadWatch();
+      return;
+    }
     iframe.src = SOURCES[sourceIndex];
     scheduleLoadWatch();
   }
@@ -350,6 +370,7 @@
   });
 
   window.addEventListener('message', function (event) {
+    if (!isAllowedOrigin(event.origin)) return;
     var data = event.data;
     if (!data || typeof data !== 'object') return;
     if (data.type === RESIZE_TYPE) {
@@ -389,10 +410,12 @@
   }
 
   iframe.addEventListener('load', function () {
+    iframeLoaded = true;
+    markReady();
     ping();
     sendWidth();
     sendViewportNow();
-    [50, 150, 400, 1000].forEach(function (ms) {
+    [50, 150, 400, 1000, 3000].forEach(function (ms) {
       setTimeout(function () {
         ping();
         sendWidth();
@@ -400,7 +423,10 @@
       }, ms);
     });
   });
-  loadSource(0);
+  scheduleLoadWatch();
+  setTimeout(function () {
+    if (!iframeLoaded && !contentReady) tryNextSource();
+  }, READY_TIMEOUT_MS);
   sendWidth();
   setTimeout(sendWidth, 100);
   setTimeout(sendWidth, 500);
