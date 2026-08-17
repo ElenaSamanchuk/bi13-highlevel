@@ -6,7 +6,7 @@
   <title>BI13 · мобильная съёмка</title>
   <meta name="description" content="Школа визуального мышления BI13. Мобильная съёмка: два уровня, один маршрут." />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- bi13 cache: 20260817-25 -->
+  <!-- bi13 cache: 20260817-30 -->
   <style>
     @font-face {
       font-family: Manrope;
@@ -239,6 +239,35 @@
     html.bi13-tilda-scale .skill-track {
       margin-right: 0;
     }
+    html.bi13-embedded .audience-stage,
+    html.bi13-embedded .results__cards,
+    html.bi13-embedded .skill-track {
+      display: flex !important;
+      overflow-x: auto !important;
+      scroll-snap-type: x mandatory;
+      touch-action: pan-x;
+      -webkit-overflow-scrolling: touch;
+    }
+    html.bi13-embedded .audience-stage {
+      position: relative;
+      left: auto;
+      transform: none;
+      width: 100%;
+      grid-template-columns: none;
+      justify-content: flex-start;
+      gap: var(--space-stack, 12px);
+      pointer-events: auto;
+    }
+    html.bi13-embedded .results__cards {
+      grid-template-columns: none;
+    }
+    html.bi13-embedded .aud-card,
+    html.bi13-embedded .review-card {
+      flex: 0 0 calc(100% - var(--peek, 24px));
+      scroll-snap-align: start;
+      max-width: none;
+    }
+    html.bi13-embedded .aud-card--offset { margin-top: 0; }
     [data-hscroll] {
       overflow-x: auto;
       scroll-snap-type: x mandatory;
@@ -2725,6 +2754,7 @@
       var WIDTH_TYPE = "bi13-highlevel-width";
       var CLICK_TYPE = "bi13-highlevel-click";
       var HRECTS_TYPE = "bi13-hrects";
+      var HSCROLL_TYPE = "bi13-hscroll";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
       var inIframe = window.parent && window.parent !== window;
@@ -3021,6 +3051,15 @@
               lastHeight = 0;
               scheduleHeight();
             }
+            return;
+          }
+          if (data.type === HSCROLL_TYPE) {
+            var hNodes = document.querySelectorAll("[data-hscroll]");
+            var hNode = hNodes[data.i];
+            if (!hNode) return;
+            var dx = Number(data.dx);
+            if (!dx) return;
+            hNode.scrollLeft += dx;
             return;
           }
           if (data.type === VIEWPORT_TYPE) {
