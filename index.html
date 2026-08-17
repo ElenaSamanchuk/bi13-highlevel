@@ -197,7 +197,8 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; overflow-x: clip; }
+    html { scroll-behavior: smooth; overflow-x: clip; -webkit-tap-highlight-color: transparent; }
+    html, body, #page-root, a, button { -webkit-tap-highlight-color: transparent; outline: none; }
     body {
       font-family: Manrope, Arial, sans-serif;
       font-weight: 400;
@@ -576,8 +577,20 @@
     }
     .btn-white:hover { opacity: 0.9; }
     @media (max-width: 959px) {
-      .tabs button { min-height: 44px; }
       .skill-track { touch-action: pan-x pan-y; }
+      .tabs {
+        width: 100%;
+        max-width: none;
+        overflow: hidden;
+      }
+      .tabs button {
+        min-height: 32px;
+        height: 34px;
+        padding: 0 6px;
+        font-size: 11px;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
     }
 
     /* ===== PATH ===== */
@@ -2004,6 +2017,15 @@
       #results { padding-top: 8px !important; }
       .path-card h3 { font-size: 16px !important; }
       .prog, .prog--tint { padding: 10px 14px !important; min-height: 0 !important; }
+      .tabs { width: 100% !important; max-width: none !important; overflow: hidden !important; }
+      .tabs button {
+        min-height: 32px !important;
+        height: 34px !important;
+        padding: 0 6px !important;
+        font-size: 11px !important;
+        line-height: 1.2 !important;
+        white-space: nowrap !important;
+      }
     }
   </style>
 </head>
@@ -2043,7 +2065,7 @@
           <a class="btn-white" href="#path">Перейти на новый уровень</a>
         </div>
       </div>
-      <div class="audience-stage" id="audTrack">
+      <div class="audience-stage" id="audTrack" data-hscroll>
         <article class="aud-card" data-reveal>
           <div class="aud-card__img"><img src="assets/card-01.webp" alt="" loading="lazy" /></div>
           <h3>С нуля</h3>
@@ -2302,7 +2324,7 @@
       </div>
     </div>
     <div class="wrap">
-      <div class="skill-track" id="skillTrack" tabindex="0" data-reveal>
+      <div class="skill-track" id="skillTrack" tabindex="0" data-reveal data-hscroll>
         <article class="skill-card">
           <div class="skill-card__img"><img src="assets/skill/s1.webp" alt="" loading="lazy" /></div>
           <div class="skill-card__body">
@@ -2477,7 +2499,7 @@
         </p>
         <a class="results__cta" href="#pricing">Хочу такие же результаты</a>
       </div>
-      <div class="results__cards" id="reviewTrack">
+      <div class="results__cards" id="reviewTrack" data-hscroll>
         <article class="review-card" data-reveal>
           <div class="review-card__person">
             <div class="review-card__avatar">
@@ -2599,7 +2621,7 @@
       var VIEWPORT_TYPE = "bi13-highlevel-viewport";
       var WIDTH_TYPE = "bi13-highlevel-width";
       var CLICK_TYPE = "bi13-highlevel-click";
-      var PAN_TYPE = "bi13-highlevel-pan";
+      var SWIPE_TYPE = "bi13-highlevel-swipe";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
       var inIframe = window.parent && window.parent !== window;
@@ -2867,14 +2889,27 @@
             if (target && typeof target.click === "function") target.click();
             return;
           }
-          if (data.type === PAN_TYPE) {
+          if (data.type === SWIPE_TYPE || data.type === "bi13-highlevel-pan") {
             var px = Number(data.x);
             var py = Number(data.y);
             var dx = Number(data.dx) || 0;
             if (!dx || !isFinite(px) || !isFinite(py)) return;
             var hit = document.elementFromPoint(px, py);
-            var track = hit && hit.closest(".audience-stage, .skill-track, .results__cards");
-            if (track) track.scrollLeft -= dx;
+            var track = hit && hit.closest("[data-hscroll]");
+            if (!track && hit) {
+              var node = hit;
+              while (node && node !== document.documentElement) {
+                if (node.scrollWidth > node.clientWidth + 2) {
+                  var ox = window.getComputedStyle(node).overflowX;
+                  if (ox === "auto" || ox === "scroll") { track = node; break; }
+                }
+                node = node.parentElement;
+              }
+            }
+            if (track) {
+              track.scrollLeft -= dx;
+              scheduleHeight();
+            }
           }
         });
       }

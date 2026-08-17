@@ -6,18 +6,18 @@
   Скролл страницы — нативный (shield + pointer-events:none на iframe).
   После обновления заново вставьте код и опубликуйте страницу.
 -->
-<div id="bi13-highlevel-wrap" style="position:relative;width:100%;line-height:0;background:#161616;overflow-x:clip;">
+<div id="bi13-highlevel-wrap" style="position:relative;width:100%;line-height:0;background:#161616;overflow-x:clip;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;outline:none;">
   <iframe
     id="bi13-highlevel-frame"
-    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-8"
+    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-11"
     title="BI13 — мобильная съёмка"
     loading="eager"
     scrolling="no"
-    style="width:100%;border:0;display:block;min-height:600px;overflow:hidden;background:#161616;pointer-events:none;"
+    style="width:100%;border:0;display:block;min-height:600px;overflow:hidden;background:#161616;pointer-events:none;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;outline:none;"
   ></iframe>
   <div
     id="bi13-highlevel-shield"
-    style="position:absolute;left:0;top:0;right:0;bottom:0;z-index:2;touch-action:pan-y;cursor:pointer;"
+    style="position:absolute;left:0;top:0;right:0;bottom:0;z-index:2;touch-action:pan-y;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;outline:none;"
   ></div>
 </div>
 <script>
@@ -28,7 +28,7 @@
   var VIEWPORT_TYPE = 'bi13-highlevel-viewport';
   var WIDTH_TYPE = 'bi13-highlevel-width';
   var CLICK_TYPE = 'bi13-highlevel-click';
-  var PAN_TYPE = 'bi13-highlevel-pan';
+  var SWIPE_TYPE = 'bi13-highlevel-swipe';
   var TAP_MOVE_MAX = 12;
   var PAN_MIN = 8;
 
@@ -115,34 +115,53 @@
     } catch (e) {}
   }
 
-  function forwardPan(clientX, clientY, dx) {
+  function forwardSwipe(clientX, clientY, dx) {
     var pt = iframePoint(clientX, clientY);
     if (!pt) return;
     try {
-      iframe.contentWindow.postMessage({ type: PAN_TYPE, x: pt.x, y: pt.y, dx: dx }, '*');
+      iframe.contentWindow.postMessage({ type: SWIPE_TYPE, x: pt.x, y: pt.y, dx: dx }, '*');
     } catch (e) {}
   }
 
-  shield.addEventListener('pointerdown', function (event) {
+  function onDown(x, y) {
     pointerMoved = false;
     panningX = false;
-    pointerStartX = event.clientX;
-    pointerStartY = event.clientY;
-    lastPanX = event.clientX;
-  }, { passive: true });
+    pointerStartX = x;
+    pointerStartY = y;
+    lastPanX = x;
+  }
 
-  shield.addEventListener('pointermove', function (event) {
-    var dx = event.clientX - pointerStartX;
-    var dy = event.clientY - pointerStartY;
+  function onMove(event, x, y) {
+    var dx = x - pointerStartX;
+    var dy = y - pointerStartY;
     if (!pointerMoved && dx * dx + dy * dy > TAP_MOVE_MAX * TAP_MOVE_MAX) pointerMoved = true;
     if (!panningX && pointerMoved && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > PAN_MIN) {
       panningX = true;
     }
     if (!panningX) return;
-    var step = event.clientX - lastPanX;
-    lastPanX = event.clientX;
-    if (step) forwardPan(event.clientX, event.clientY, step);
+    if (event.cancelable) event.preventDefault();
+    var step = x - lastPanX;
+    lastPanX = x;
+    if (step) forwardSwipe(x, y, step);
+  }
+
+  shield.addEventListener('pointerdown', function (event) {
+    onDown(event.clientX, event.clientY);
   }, { passive: true });
+
+  shield.addEventListener('pointermove', function (event) {
+    onMove(event, event.clientX, event.clientY);
+  }, { passive: false });
+
+  shield.addEventListener('touchstart', function (event) {
+    var t = event.changedTouches[0];
+    if (t) onDown(t.clientX, t.clientY);
+  }, { passive: true });
+
+  shield.addEventListener('touchmove', function (event) {
+    var t = event.changedTouches[0];
+    if (t) onMove(event, t.clientX, t.clientY);
+  }, { passive: false });
 
   shield.addEventListener('click', function (event) {
     if (pointerMoved) return;
