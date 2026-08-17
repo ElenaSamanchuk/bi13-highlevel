@@ -230,7 +230,7 @@
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
-      touch-action: pan-x pan-y;
+      touch-action: pan-x;
       overscroll-behavior-x: contain;
       scrollbar-width: none;
       -ms-overflow-style: none;
@@ -1977,8 +1977,13 @@
     }
 
     @media (max-width: 959px) {
-      #format, #skill, #speaker, #results, #page-root { overflow-x: clip; }
-      .format { grid-template-columns: 1fr !important; width: 100%; max-width: 100%; }
+      #skill { overflow: visible !important; }
+      .format {
+        grid-template-columns: 1fr !important;
+        width: min(100% - var(--pad) * 2, 1166px) !important;
+        max-width: 1166px;
+        margin-inline: auto;
+      }
       .format-mosaic {
         width: 100% !important;
         max-width: 100% !important;
@@ -1987,8 +1992,16 @@
       }
       .format-panel {
         width: 100% !important;
+        max-width: 100%;
         min-height: 0 !important;
         padding: 16px 0 0 !important;
+        box-sizing: border-box;
+      }
+      .format-panel__cta {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        margin-inline: 0;
       }
       .format-panel__corners { display: none !important; }
       .format-features {
@@ -2002,9 +2015,18 @@
         max-width: none !important;
       }
       .skill-head .section-title { white-space: normal; }
-      .skill-track { margin-right: 0; }
+      .skill-track { margin-right: 0 !important; overflow-x: auto !important; }
+      .audience-stage, .results__cards, .skill-track {
+        overflow-x: auto !important;
+        touch-action: pan-x;
+      }
+      .aud-card,
+      .review-card,
       .skill-card {
-        flex: 0 0 calc(100% - var(--peek));
+        flex: 0 0 85% !important;
+        max-width: 85%;
+      }
+      .skill-card {
         grid-template-columns: 1fr !important;
         height: auto !important;
         min-height: 0 !important;
@@ -2921,7 +2943,7 @@
           if (!lock && (dx * dx + dy * dy > 64)) {
             lock = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
           }
-          if (lock === "x" && inHScroll(event.target)) return;
+          if (lock === "x" || (lock !== "y" && inHScroll(event.target))) return;
           if (lock !== "y") return;
           if (event.cancelable) event.preventDefault();
           var step = lastY - t.clientY;
