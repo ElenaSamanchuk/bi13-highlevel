@@ -10,7 +10,7 @@
 <div id="bi13-highlevel-wrap" style="position:relative;width:100%;line-height:0;background:#161616;overflow:visible;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;">
   <iframe
     id="bi13-highlevel-frame"
-    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-34"
+    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-35"
     title="BI13 — мобильная съёмка"
     loading="eager"
     scrolling="no"
@@ -137,9 +137,12 @@
   function bindHole(hole, index) {
     var lastX = 0;
     var lastY = 0;
+    var startX = 0;
+    var startY = 0;
     var dragged = false;
     var active = false;
     var viaTouch = false;
+    var lockDir = null;
 
     function client(event) {
       if (event.touches && event.touches[0]) {
@@ -155,10 +158,11 @@
       if (fromTouch) viaTouch = true;
       if (!fromTouch && viaTouch) return;
       var p = client(event);
-      lastX = p.x;
-      lastY = p.y;
+      startX = lastX = p.x;
+      startY = lastY = p.y;
       dragged = false;
       active = true;
+      lockDir = null;
       holeBusy += 1;
       if (!fromTouch && event.pointerId != null && hole.setPointerCapture) {
         try { hole.setPointerCapture(event.pointerId); } catch (e) {}
@@ -171,10 +175,15 @@
       var p = client(event);
       var dx = p.x - lastX;
       var dy = p.y - lastY;
+      var totalDx = p.x - startX;
+      var totalDy = p.y - startY;
       if (Math.abs(dx) > 2 || Math.abs(dy) > 2) dragged = true;
+      if (!lockDir && (Math.abs(totalDx) > 8 || Math.abs(totalDy) > 8)) {
+        lockDir = Math.abs(totalDx) >= Math.abs(totalDy) ? 'h' : 'v';
+      }
       lastX = p.x;
       lastY = p.y;
-      if (Math.abs(dx) >= Math.abs(dy)) {
+      if (lockDir === 'h') {
         event.preventDefault();
         sendHScroll(index, dx);
       }
@@ -192,6 +201,7 @@
         var p = client(event);
         forwardClick(p.x, p.y);
       }
+      lockDir = null;
       if (fromTouch) viaTouch = false;
     }
 
