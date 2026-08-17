@@ -3,8 +3,8 @@
  * Generates tilda-inline-taplink.html from bi13-taplink for direct paste into Tilda T123 block.
  * Usage: node scripts/build-taplink-inline.mjs
  *
- * By default: index.html + styles.css from bi13-taplink GitHub main;
- * assets/fonts served via jsDelivr from bi13-highlevel (bi13-taplink is not on jsDelivr).
+ * By default: index.html + styles.css from bi13-taplink GitHub main.
+ * Images/fonts served via jsDelivr from bi13-highlevel (bi13-taplink is not on jsDelivr).
  * Local only: BI13_FROM_LOCAL=1 node scripts/build-taplink-inline.mjs
  *
  * Source repo: elenasamanchuk/bi13-taplink (override root via BI13_TAPLINK_ROOT)
@@ -32,38 +32,29 @@ const PREFIX = "#bi13-taplink-wrap";
 const VERSION = 2;
 const TILDA_HEADER_OFFSET = 80;
 
-function resolveCommitSha() {
-  if (process.env.BI13_GITHUB_REF && process.env.BI13_GITHUB_REF.length >= 7) {
-    return cdnRef(process.env.BI13_GITHUB_REF);
-  }
-  try {
-    execSync("git fetch origin main", { cwd: ROOT, stdio: "pipe" });
-    const sha = execSync("git rev-parse origin/main", {
-      cwd: ROOT,
-      encoding: "utf8",
-    }).trim();
-    return cdnRef(sha);
-  } catch {
-    try {
-      const sha = execSync("git rev-parse HEAD", {
-        cwd: ROOT,
-        encoding: "utf8",
-      }).trim();
-      return cdnRef(sha);
-    } catch {
-      return cdnRef(GITHUB_REF);
-    }
-  }
-}
-
 function cdnRef(sha) {
   const ref = (sha || "main").trim();
   return ref === "main" ? ref : ref.slice(0, 7);
 }
 
+function resolveAssetSha() {
+  if (process.env.BI13_ASSET_SHA) {
+    return cdnRef(process.env.BI13_ASSET_SHA);
+  }
+  try {
+    const sha = execSync("git log -1 --format=%H -- assets/taplink", {
+      cwd: ROOT,
+      encoding: "utf8",
+    }).trim();
+    return cdnRef(sha);
+  } catch {
+    return "main";
+  }
+}
+
 let BASE =
   process.env.BI13_ASSET_BASE ||
-  `https://cdn.jsdelivr.net/gh/${CDN_GITHUB_REPO}@${resolveCommitSha()}/`;
+  `https://cdn.jsdelivr.net/gh/${CDN_GITHUB_REPO}@${resolveAssetSha()}/`;
 let FONT_BASE =
   process.env.BI13_FONT_BASE ||
   `https://cdn.jsdelivr.net/gh/${CDN_GITHUB_REPO}@${cdnRef(CDN_FONT_SHA)}/`;
@@ -253,12 +244,12 @@ function transformCss(css) {
   css = prefixCss(css, PREFIX);
 
   const wrapperRules = `
-    ${PREFIX} { width:100%; max-width:100%; min-height:100vh; overflow-x:clip; position:relative; isolation:isolate; display:block; background:#000 !important; color:var(--ink); font-family:Manrope,system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+    ${PREFIX} { background:#000; width:100%; max-width:100%; overflow-x:clip; position:relative; isolation:isolate; display:block; color:var(--ink); font-family:Manrope,system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
     ${PREFIX} a, ${PREFIX} button { -webkit-tap-highlight-color:transparent; }
     ${PREFIX} #products, ${PREFIX} section[id] { scroll-margin-top: ${TILDA_HEADER_OFFSET}px; }
     ${PREFIX} img { border:0; vertical-align:top; }
-    ${PREFIX} .page { min-height:100vh; display:flex; justify-content:center; background:#000 !important; width:100%; margin:0; }
-    ${PREFIX} .shell { min-height:0; margin-inline:auto; background:var(--bg); }
+    ${PREFIX} .page { min-height:0; display:flex; justify-content:center; background:var(--bg); width:100%; margin:0; }
+    ${PREFIX} .shell { min-height:0; margin-inline:auto; }
     @media (max-width:519px) { ${PREFIX} { --pad:12px; } ${PREFIX} .shell { width:100%; max-width:none; } }
   `;
 
@@ -371,9 +362,11 @@ function buildJs() {
 
 async function build() {
   if (!process.env.BI13_ASSET_BASE) {
-    BASE = `https://cdn.jsdelivr.net/gh/${CDN_GITHUB_REPO}@${resolveCommitSha()}/`;
+    BASE = `https://cdn.jsdelivr.net/gh/${CDN_GITHUB_REPO}@${resolveAssetSha()}/`;
   }
-
+  if (!process.env.BI13_FONT_BASE) {
+    FONT_BASE = `https://cdn.jsdelivr.net/gh/${CDN_GITHUB_REPO}@${cdnRef(CDN_FONT_SHA)}/`;
+  }
   const [indexHtml, stylesCss] = await Promise.all([
     readFile("index.html"),
     readFile("styles.css"),
