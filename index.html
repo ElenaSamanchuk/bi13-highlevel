@@ -223,6 +223,11 @@
       height: auto !important;
       min-height: 0 !important;
       overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      outline: none;
+      -webkit-user-select: none;
+      user-select: none;
     }
     html.bi13-embedded #page-root,
     html.bi13-tilda-scale #page-root {
@@ -2717,7 +2722,6 @@
       var VIEWPORT_TYPE = "bi13-highlevel-viewport";
       var WIDTH_TYPE = "bi13-highlevel-width";
       var CLICK_TYPE = "bi13-highlevel-click";
-      var HSCROLL_TYPE = "bi13-hscroll";
       var HRECTS_TYPE = "bi13-hrects";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
@@ -2985,26 +2989,11 @@
         });
       }
 
-      function cssZoom() {
-        var zoom = parseFloat(window.getComputedStyle(document.documentElement).zoom);
-        return zoom && isFinite(zoom) ? zoom : 1;
-      }
-
       function bootParentClicks() {
         if (!inIframe) return;
         window.addEventListener("message", function (event) {
           var data = event.data;
           if (!data || typeof data !== "object") return;
-          if (data.type === HSCROLL_TYPE) {
-            var i = Number(data.i);
-            var dx = Number(data.dx);
-            if (!isFinite(i) || i < 0 || !isFinite(dx) || !dx) return;
-            var rows = document.querySelectorAll("[data-hscroll]");
-            var row = rows[i];
-            if (!row) return;
-            row.scrollLeft += dx / cssZoom();
-            return;
-          }
           if (data.type !== CLICK_TYPE) return;
           var x = Number(data.x);
           var y = Number(data.y);
