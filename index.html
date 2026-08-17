@@ -6,7 +6,7 @@
   <title>BI13 · мобильная съёмка</title>
   <meta name="description" content="Школа визуального мышления BI13. Мобильная съёмка: два уровня, один маршрут." />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- bi13 cache: 20260817-28 -->
+  <!-- bi13 cache: 20260817-29 -->
   <style>
     @font-face {
       font-family: Manrope;
@@ -1678,7 +1678,6 @@
     }
     .results__cta:hover { background: #1a75ff; }
     .results__cards {
-      display: grid;
       gap: 28px;
     }
     .review-card {
@@ -1742,6 +1741,7 @@
         align-items: center;
       }
       .results__cards {
+        display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 28px 32px;
       }
@@ -2066,6 +2066,7 @@
       .skill-head .section-title { white-space: normal; }
       .skill-track { margin-right: 0 !important; overflow-x: auto !important; }
       .audience-stage, .results__cards, .skill-track {
+        display: flex !important;
         overflow-x: auto !important;
         touch-action: pan-x;
       }
@@ -2723,8 +2724,7 @@
       var VIEWPORT_TYPE = "bi13-highlevel-viewport";
       var WIDTH_TYPE = "bi13-highlevel-width";
       var CLICK_TYPE = "bi13-highlevel-click";
-      var HRECTS_TYPE = "bi13-hrects";
-      var HSCROLL_TYPE = "bi13-hscroll";
+      var PARENT_SCROLL_TYPE = "bi13-parent-scroll";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
       var inIframe = window.parent && window.parent !== window;
@@ -2771,24 +2771,6 @@
         return h > 0 ? Math.ceil(h) : 0;
       }
 
-      function postHRects() {
-        if (!inIframe) return;
-        var nodes = document.querySelectorAll("[data-hscroll]");
-        var rects = [];
-        for (var i = 0; i < nodes.length; i++) {
-          var node = nodes[i];
-          var r = node.getBoundingClientRect();
-          rects.push({
-            i: i,
-            top: r.top,
-            left: r.left,
-            width: r.width,
-            height: r.height
-          });
-        }
-        postToParent({ type: HRECTS_TYPE, rects: rects });
-      }
-
       function sendHeight() {
         heightRaf = 0;
         if (!inIframe) return;
@@ -2797,7 +2779,6 @@
           lastHeight = height;
           postToParent({ type: RESIZE_TYPE, height: height });
         }
-        postHRects();
       }
 
       function scheduleHeight() {
@@ -2990,26 +2971,56 @@
         });
       }
 
-      function bootParentClicks() {
+      function bootParentScroll() {
         if (!inIframe) return;
-        window.addEventListener("message", function (event) {
-          var data = event.data;
-          if (!data || typeof data !== "object") return;
-          if (data.type !== CLICK_TYPE) return;
-          var x = Number(data.x);
-          var y = Number(data.y);
-          if (!isFinite(x) || !isFinite(y)) return;
-          var el = document.elementFromPoint(x, y);
-          if (!el) return;
-          var target = el.closest("a, button, [data-tab], [role='button']");
-          if (!target || typeof target.click !== "function") return;
-          target.click();
-        });
+        var tracking = false;
+        var startX = 0;
+        var startY = 0;
+        var lastY = 0;
+        var onHscroll = false;
+        var locked = null;
+
+        document.addEventListener("touchstart", function (event) {
+          if (!event.touches[0]) return;
+          tracking = true;
+          startX = event.touches[0].clientX;
+          startY = lastY = event.touches[0].clientY;
+          onHscroll = !!event.target.closest("[data-hscroll]");
+          locked = null;
+        }, { passive: true });
+
+        document.addEventListener("touchmove", function (event) {
+          if (!tracking || !event.touches[0]) return;
+          var x = event.touches[0].clientX;
+          var y = event.touches[0].clientY;
+          var dx = x - startX;
+          var dyTotal = y - startY;
+          if (!locked && (Math.abs(dx) > 8 || Math.abs(dyTotal) > 8)) {
+            locked = Math.abs(dx) >= Math.abs(dyTotal) ? "h" : "v";
+          }
+          if (onHscroll && locked === "h") return;
+          var step = lastY - y;
+          lastY = y;
+          if (step) postToParent({ type: PARENT_SCROLL_TYPE, dy: step });
+        }, { passive: true });
+
+        document.addEventListener("touchend", function () {
+          tracking = false;
+          locked = null;
+        }, { passive: true });
+        document.addEventListener("touchcancel", function () {
+          tracking = false;
+          locked = null;
+        }, { passive: true });
+
+        document.addEventListener("wheel", function (event) {
+          postToParent({ type: PARENT_SCROLL_TYPE, dy: event.deltaY });
+        }, { passive: true });
       }
 
       function boot() {
         if (inIframe) document.documentElement.classList.add("bi13-embedded");
-        bootParentClicks();
+        bootParentScroll();
         window.addEventListener("message", function (event) {
           var data = event.data;
           if (!data || typeof data !== "object") return;
@@ -3020,15 +3031,6 @@
               lastHeight = 0;
               scheduleHeight();
             }
-            return;
-          }
-          if (data.type === HSCROLL_TYPE) {
-            var nodes = document.querySelectorAll("[data-hscroll]");
-            var node = nodes[data.i];
-            if (!node) return;
-            var dx = Number(data.dx);
-            if (!dx) return;
-            node.scrollLeft += dx;
             return;
           }
           if (data.type === VIEWPORT_TYPE) {
