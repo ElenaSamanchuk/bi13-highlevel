@@ -971,10 +971,10 @@
     }
 
     @media (max-width: 479px) {
-      .wrap { width: calc(100% - var(--pad) * 2); }
+      .wrap { width: calc(100% - var(--pad) * 2) !important; }
       .hero { padding: var(--space-card) 0 var(--space-gap); }
       .hero__row { width: calc(100% - var(--pad) * 2); }
-      .hero__copy { min-height: 0; padding: var(--space-gap) var(--pad) 0; }
+      .hero__copy { min-height: 0; padding: var(--space-gap) 0 0; }
       .hero__center { gap: var(--space-gap); padding: var(--space-card) 0; }
       .hero__cta { width: 100%; margin: 0; }
       .audience-compose { padding-top: 0; }
@@ -1985,10 +1985,17 @@
     }
 
     @media (max-width: 959px) {
+      .wrap {
+        width: min(100% - var(--pad) * 2, 1166px) !important;
+        max-width: 1166px;
+        margin-inline: auto;
+        box-sizing: border-box;
+      }
       .hero { padding: 16px 0 24px !important; }
       .hero__copy {
         min-height: 0 !important;
         grid-template-rows: auto auto auto;
+        padding-inline: 0 !important;
       }
       #audience { padding: 28px 0 0 !important; }
       #path { padding: 28px 0 0 !important; }
@@ -2008,7 +2015,8 @@
       }
       .faq-photo { height: auto !important; aspect-ratio: 340 / 276; }
       .final-stage { gap: 16px; min-height: 0 !important; }
-      .final-center { padding: 16px 12px 24px; }
+      .final-center { padding: 16px 0 24px; width: 100%; box-sizing: border-box; }
+      .final-center__cta { width: 100%; max-width: 100%; box-sizing: border-box; }
       .speaker__name { line-height: 1.2 !important; }
       .format {
         grid-template-columns: 1fr !important;
@@ -2073,19 +2081,13 @@
       }
       .skill-card__body p { max-width: none; }
       .skill-card__num { position: static; margin-top: 8px; }
-      .speaker,
+      .speaker { grid-template-columns: 1fr !important; }
       .speaker__main,
       .speaker__side,
-      .results,
       .results__intro {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-      }
-      .speaker { grid-template-columns: 1fr !important; }
-      .speaker__main {
-        max-width: 100% !important;
-        justify-self: stretch;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
       }
       .speaker__side { min-height: 0 !important; }
       .speaker__quote { font-size: 16px !important; line-height: 1.25 !important; }
