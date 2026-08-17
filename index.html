@@ -6,7 +6,7 @@
   <title>BI13 · мобильная съёмка</title>
   <meta name="description" content="Школа визуального мышления BI13. Мобильная съёмка: два уровня, один маршрут." />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- bi13 cache: 20260817-32 -->
+  <!-- bi13 cache: 20260817-33 -->
   <style>
     @font-face {
       font-family: Manrope;
@@ -252,6 +252,8 @@
     [data-hscroll]::-webkit-scrollbar { display: none; }
     .hscroll-wrap {
       position: relative;
+      width: 100%;
+      min-width: 0;
     }
     .hscroll-btn {
       position: absolute;
@@ -932,6 +934,13 @@
       .hero__copy { min-height: 0; padding: var(--space-card) var(--pad) 0; }
       .hero__center { gap: var(--space-gap); padding: var(--space-gap) 0; max-width: 100%; }
       .hero__center h1 .hero__h1-line { white-space: normal; }
+      /* hero-main.webp — коллаж 3×3; на мобилке показываем 2 верхних ряда */
+      .hero__visual {
+        aspect-ratio: 970 / 822;
+      }
+      .hero__visual img {
+        object-position: center top;
+      }
       .audience-compose { padding-top: 0; }
       .audience-band { height: auto; min-height: 0; }
       .audience-band__cta {
@@ -1024,9 +1033,9 @@
 
     @media (max-width: 639px) {
       .hero__visual {
-        aspect-ratio: 4 / 5;
+        aspect-ratio: 970 / 822;
       }
-      .hero__visual img { object-position: center 32%; }
+      .hero__visual img { object-position: center top; }
     }
 
     @media (max-width: 479px) {
@@ -2087,7 +2096,11 @@
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        aspect-ratio: 1;
+        aspect-ratio: 3 / 2 !important;
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+      }
+      .format-mosaic img:nth-child(n + 7) {
+        display: none !important;
       }
       .format-panel {
         width: 100% !important;
@@ -2114,17 +2127,46 @@
         max-width: none !important;
       }
       .skill-head .section-title { white-space: normal; }
+      #skill .wrap > .hscroll-wrap {
+        width: 100vw;
+        max-width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        padding-left: var(--pad);
+        box-sizing: border-box;
+      }
+      #skill .hscroll-wrap .skill-track {
+        margin-right: 0 !important;
+        padding-right: var(--pad);
+        overflow-x: auto !important;
+      }
+      .wrap.results > .hscroll-wrap {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow: hidden;
+      }
+      .hscroll-wrap > [data-hscroll] {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
       .skill-track { margin-right: 0 !important; overflow-x: auto !important; }
-      .audience-stage, .results__cards, .skill-track {
+      .audience-stage, .results__cards, .skill-track,
+      .hscroll-wrap .results__cards, .hscroll-wrap .skill-track {
         display: flex !important;
         overflow-x: auto !important;
-        touch-action: pan-x;
+        touch-action: pan-x pan-y;
       }
-      .aud-card,
-      .review-card,
-      .skill-card {
+      .aud-card {
         flex: 0 0 82% !important;
         max-width: 82%;
+      }
+      .hscroll-wrap .review-card,
+      .hscroll-wrap .skill-card {
+        flex: 0 0 calc(100% - var(--peek)) !important;
+        max-width: calc(100% - var(--peek));
       }
       .skill-card {
         grid-template-columns: 1fr !important;
