@@ -6,7 +6,7 @@
   <title>BI13 · мобильная съёмка</title>
   <meta name="description" content="Школа визуального мышления BI13. Мобильная съёмка: два уровня, один маршрут." />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- bi13 cache: 20260817-31 -->
+  <!-- bi13 cache: 20260817-32 -->
   <style>
     @font-face {
       font-family: Manrope;
@@ -252,21 +252,6 @@
     [data-hscroll]::-webkit-scrollbar { display: none; }
     .hscroll-wrap {
       position: relative;
-    }
-    .audience-compose > .hscroll-wrap {
-      position: absolute;
-      z-index: 3;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 0;
-      width: min(100% - var(--pad) * 2, 1166px);
-      pointer-events: none;
-    }
-    .audience-compose > .hscroll-wrap .audience-stage {
-      position: relative;
-      left: auto;
-      transform: none;
-      width: 100%;
     }
     .hscroll-btn {
       position: absolute;
@@ -948,13 +933,6 @@
       .hero__center { gap: var(--space-gap); padding: var(--space-gap) 0; max-width: 100%; }
       .hero__center h1 .hero__h1-line { white-space: normal; }
       .audience-compose { padding-top: 0; }
-      .audience-compose > .hscroll-wrap {
-        position: relative;
-        left: auto;
-        transform: none;
-        width: 100%;
-        pointer-events: auto;
-      }
       .audience-band { height: auto; min-height: 0; }
       .audience-band__cta {
         position: relative;
@@ -2796,6 +2774,8 @@
       var VIEWPORT_TYPE = "bi13-highlevel-viewport";
       var WIDTH_TYPE = "bi13-highlevel-width";
       var CLICK_TYPE = "bi13-highlevel-click";
+      var HRECTS_TYPE = "bi13-hrects";
+      var HSCROLL_TYPE = "bi13-hscroll";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
       var inIframe = window.parent && window.parent !== window;
@@ -2842,6 +2822,28 @@
         return h > 0 ? Math.ceil(h) : 0;
       }
 
+      function postHRects() {
+        if (!inIframe) return;
+        var nodes = document.querySelectorAll("[data-hscroll]");
+        var rects = [];
+        for (var i = 0; i < nodes.length; i++) {
+          var node = nodes[i];
+          var sw = Math.ceil(node.scrollWidth);
+          var cw = Math.ceil(node.clientWidth);
+          if (sw <= cw + 2) continue;
+          var r = node.getBoundingClientRect();
+          if (r.width < 40 || r.height < 40) continue;
+          rects.push({
+            i: i,
+            top: r.top,
+            left: r.left,
+            width: r.width,
+            height: r.height
+          });
+        }
+        postToParent({ type: HRECTS_TYPE, rects: rects });
+      }
+
       function sendHeight() {
         heightRaf = 0;
         if (!inIframe) return;
@@ -2850,6 +2852,7 @@
           lastHeight = height;
           postToParent({ type: RESIZE_TYPE, height: height });
         }
+        postHRects();
       }
 
       function scheduleHeight() {
@@ -3083,7 +3086,7 @@
         }
 
         document.querySelectorAll("[data-hscroll]").forEach(function (track) {
-          if (track.closest(".hscroll-wrap")) return;
+          if (track.id === "audTrack" || track.closest(".hscroll-wrap")) return;
           var wrap = document.createElement("div");
           wrap.className = "hscroll-wrap";
           track.parentNode.insertBefore(wrap, track);
@@ -3104,21 +3107,25 @@
           next.addEventListener("click", function () { scrollStep(track, 1); });
           track.addEventListener("scroll", function () {
             updateWrap(wrap, track);
+            if (inIframe) postHRects();
           }, { passive: true });
 
           updateWrap(wrap, track);
         });
 
-        function refreshAll() {
+        window.addEventListener("resize", function () {
           document.querySelectorAll(".hscroll-wrap").forEach(function (wrap) {
             var track = wrap.querySelector("[data-hscroll]");
             if (track) updateWrap(wrap, track);
           });
-        }
+          if (inIframe) postHRects();
+        });
+      }
 
-        window.addEventListener("resize", refreshAll);
+      function boot() {
         if (inIframe) document.documentElement.classList.add("bi13-embedded");
         bootParentClicks();
+        bootHscrollArrows();
         window.addEventListener("message", function (event) {
           var data = event.data;
           if (!data || typeof data !== "object") return;
@@ -3131,8 +3138,19 @@
             }
             return;
           }
+          if (data.type === HSCROLL_TYPE) {
+            var hNodes = document.querySelectorAll("[data-hscroll]");
+            var hNode = hNodes[data.i];
+            if (!hNode) return;
+            var dx = Number(data.dx);
+            if (!dx) return;
+            hNode.scrollLeft += dx;
+            postHRects();
+            return;
+          }
           if (data.type === VIEWPORT_TYPE) {
             revealByParentViewport(data.top, data.height);
+            postHRects();
             return;
           }
           if (data.type === PING_TYPE) {
@@ -3164,31 +3182,15 @@
         applyLinkTargets();
         bootReveal();
         bootFaq();
-        bootHscrollArrows();
         document.querySelectorAll("[data-hscroll]").forEach(function (el) {
           el.addEventListener("scroll", function () {
+            postHRects();
             scheduleHeight();
           }, { passive: true });
         });
         applyTildaScale();
         lastHeight = 0;
         scheduleHeight();
-      }
-
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", boot);
-      } else {
-        boot();
-      }
-    })();
-  </script>
-</body>
-</html>
-;
-        applyTildaScale();
-        lastHeight = 0;
-        scheduleHeight();
-        refreshHscrollArrows();
       }
 
       if (document.readyState === "loading") {
