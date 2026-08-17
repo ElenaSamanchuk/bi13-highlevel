@@ -1,7 +1,7 @@
 <!--
   Вставьте этот код в блок «HTML-код» (T123) на Тильде.
 
-  Если iframe не грузится у части пользователей (AdBlock, блокировка github.io):
+  Live: https://bi13pro.ru/aesthetic-high-level
   1. Этот embed сам пробует CDN-зеркало jsDelivr
   2. Показывает кнопку «Открыть лендинг» если оба источника недоступны
   3. Надёжнее всего — свой поддомен на GitHub Pages (см. README):
@@ -12,7 +12,7 @@
 <div id="bi13-highlevel-wrap" style="position:relative;width:100%;line-height:0;background:#161616;overflow:visible;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;">
   <iframe
     id="bi13-highlevel-frame"
-    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-38"
+    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-39"
     title="BI13 — мобильная съёмка"
     loading="eager"
     scrolling="no"
@@ -29,7 +29,7 @@
     <p style="margin:0 0 20px;font-size:13px;line-height:1.4;opacity:0.75;">Часто мешает блокировщик рекламы или фильтр сети (github.io).</p>
     <a
       id="bi13-highlevel-fallback-link"
-      href="https://elenasamanchuk.github.io/bi13-highlevel/"
+      href="https://bi13pro.ru/aesthetic-high-level"
       target="_blank"
       rel="noopener"
       style="display:inline-block;padding:14px 28px;background:#fff;color:#181818;text-decoration:none;font-size:15px;"
@@ -58,14 +58,14 @@
   var fallbackLink = document.getElementById('bi13-highlevel-fallback-link');
   if (!iframe || !wrap || !shield) return;
 
-  var CACHE = '20260817-38';
+  var CACHE = '20260817-39';
   var SOURCES = [
     'https://elenasamanchuk.github.io/bi13-highlevel/?v=' + CACHE,
     'https://raw.githack.com/ElenaSamanchuk/bi13-highlevel/main/index.html?v=' + CACHE
     /* После настройки CNAME на GitHub Pages добавьте первым:
     'https://hl.bi13pro.ru/?v=' + CACHE, */
   ];
-  var OPEN_URL = 'https://elenasamanchuk.github.io/bi13-highlevel/';
+  var OPEN_URL = 'https://bi13pro.ru/aesthetic-high-level';
   var READY_TIMEOUT_MS = 20000;
   var ALLOWED_ORIGINS = [
     'https://elenasamanchuk.github.io',

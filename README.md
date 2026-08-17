@@ -4,7 +4,8 @@
 
 ## Страница
 
-https://elenasamanchuk.github.io/bi13-highlevel/
+- GitHub Pages: https://elenasamanchuk.github.io/bi13-highlevel/
+- Live (Тильда): https://bi13pro.ru/aesthetic-high-level
 
 ## Вставка на Тильду
 
@@ -30,4 +31,4 @@ https://elenasamanchuk.github.io/bi13-highlevel/
 ## Источники
 
 - Макет: [Сайт High Level](https://www.figma.com/design/TXHubvaWRdJuVqZsC0lKWl/) · фрейм «лендинг единый»
-- CTA и даты — с [bi13pro.ru](https://bi13pro.ru/): бот `https://t.me/BI13PROBOT`, старт продаж 17 августа, High Level — 12 октября
+- CTA и даты — с [bi13pro.ru/aesthetic-high-level](https://bi13pro.ru/aesthetic-high-level): бот `tg://resolve?domain=BI13PROBOT`, старт продаж 17 августа, High Level — 12 октября
