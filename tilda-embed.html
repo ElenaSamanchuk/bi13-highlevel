@@ -12,7 +12,7 @@
 <div id="bi13-highlevel-wrap" style="position:relative;width:100%;line-height:0;background:#161616;overflow:visible;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;">
   <iframe
     id="bi13-highlevel-frame"
-    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-39"
+    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-40"
     title="BI13 — мобильная съёмка"
     loading="eager"
     scrolling="no"
@@ -58,18 +58,16 @@
   var fallbackLink = document.getElementById('bi13-highlevel-fallback-link');
   if (!iframe || !wrap || !shield) return;
 
-  var CACHE = '20260817-39';
+  var CACHE = '20260817-40';
   var SOURCES = [
     'https://elenasamanchuk.github.io/bi13-highlevel/?v=' + CACHE,
-    'https://raw.githack.com/ElenaSamanchuk/bi13-highlevel/main/index.html?v=' + CACHE
-    /* После настройки CNAME на GitHub Pages добавьте первым:
-    'https://hl.bi13pro.ru/?v=' + CACHE, */
+    'https://cdn.jsdelivr.net/gh/ElenaSamanchuk/bi13-highlevel@main/index.html?v=' + CACHE
   ];
   var OPEN_URL = 'https://bi13pro.ru/aesthetic-high-level';
-  var READY_TIMEOUT_MS = 20000;
+  var READY_TIMEOUT_MS = 15000;
   var ALLOWED_ORIGINS = [
     'https://elenasamanchuk.github.io',
-    'https://raw.githack.com',
+    'https://cdn.jsdelivr.net',
     'https://hl.bi13pro.ru'
   ];
 
@@ -123,19 +121,17 @@
     if (loadWatch) clearTimeout(loadWatch);
     loadWatch = setTimeout(function () {
       loadWatch = 0;
-      if (!contentReady && iframeLoaded) tryNextSource();
+      if (!contentReady && !iframeLoaded) tryNextSource();
     }, READY_TIMEOUT_MS);
   }
 
   function loadSource(index) {
     sourceIndex = index;
-    contentReady = false;
-    iframeLoaded = false;
-    hideFallback();
-    if (index === 0 && iframe.getAttribute('src') === SOURCES[0]) {
-      scheduleLoadWatch();
-      return;
+    if (index > 0) {
+      contentReady = false;
+      iframeLoaded = false;
     }
+    hideFallback();
     iframe.src = SOURCES[sourceIndex];
     scheduleLoadWatch();
   }
