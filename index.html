@@ -2967,6 +2967,43 @@
         });
       }
 
+      function pageZoom() {
+        var html = document.documentElement;
+        var style = window.getComputedStyle(html);
+        var zoom = parseFloat(style.zoom);
+        if (!isFinite(zoom) || zoom <= 0) {
+          zoom = parseFloat(String(style.getPropertyValue("--zoom") || "").trim());
+        }
+        if (!isFinite(zoom) || zoom <= 0) zoom = 1;
+        var layout = html.clientWidth || window.innerWidth || 0;
+        if (parentWidth > 0 && layout > 0) {
+          var inferred = parentWidth / layout;
+          if (isFinite(inferred) && inferred > 0 && Math.abs(inferred - 1) > 0.02) {
+            zoom = inferred;
+          }
+        }
+        return zoom;
+      }
+
+      function trackFromPoint(ix, iy) {
+        var el = document.elementFromPoint(ix, iy);
+        var track = el && el.closest ? el.closest("[data-hscroll]") : null;
+        if (track) return track;
+        var nodes = document.querySelectorAll("[data-hscroll]");
+        var best = null;
+        var bestDist = Infinity;
+        for (var i = 0; i < nodes.length; i++) {
+          var r = nodes[i].getBoundingClientRect();
+          if (iy >= r.top && iy <= r.bottom) return nodes[i];
+          var dist = iy < r.top ? r.top - iy : iy - r.bottom;
+          if (dist < bestDist) {
+            bestDist = dist;
+            best = nodes[i];
+          }
+        }
+        return best;
+      }
+
       function bootParentClicks() {
         if (!inIframe) return;
         window.addEventListener("message", function (event) {
@@ -2977,18 +3014,20 @@
             var hy = Number(data.y);
             var dx = Number(data.dx);
             if (!isFinite(hx) || !isFinite(hy) || !isFinite(dx) || !dx) return;
-            var hit = document.elementFromPoint(hx, hy);
-            if (!hit) return;
-            var track = hit.closest("[data-hscroll]");
+            var zoom = pageZoom();
+            var ix = hx / zoom;
+            var iy = hy / zoom;
+            var track = trackFromPoint(ix, iy);
             if (!track) return;
-            track.scrollLeft += dx;
+            track.scrollLeft += dx / zoom;
             return;
           }
           if (data.type !== CLICK_TYPE) return;
           var x = Number(data.x);
           var y = Number(data.y);
           if (!isFinite(x) || !isFinite(y)) return;
-          var el = document.elementFromPoint(x, y);
+          var z = pageZoom();
+          var el = document.elementFromPoint(x / z, y / z);
           if (!el) return;
           var target = el.closest("a, button, [data-tab], [role='button']");
           if (!target || typeof target.click !== "function") return;
