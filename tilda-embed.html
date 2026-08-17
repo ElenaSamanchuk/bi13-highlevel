@@ -1,28 +1,22 @@
 <!--
   Вставьте этот код в блок «HTML-код» (T123) на Тильде.
-  Страница:
-  https://elenasamanchuk.github.io/bi13-highlevel/
+  Страница: https://elenasamanchuk.github.io/bi13-highlevel/
 
-  Вертикаль — нативный скролл Тильды (щит, touch-action: pan-y).
-  Горизонталь — отдельные окна над каруселями (touch-action: none),
-  жест не отдаём iframe: на iOS смена pointer-events посреди тача ломает свайп.
+  Без щита: iframe работает как на GitHub Pages (нативные карусели и клики).
+  Вертикальный скролл страницы — проброс из iframe (мобилка + колёсико).
 
   После обновления заново вставьте код и опубликуйте страницу.
 -->
-<div id="bi13-highlevel-wrap" style="position:relative;width:100%;line-height:0;background:#161616;overflow:visible;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;">
+<div id="bi13-highlevel-wrap" style="width:100%;line-height:0;background:#161616;overflow-x:clip;-webkit-tap-highlight-color:transparent;">
   <iframe
     id="bi13-highlevel-frame"
-    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-28"
+    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-29"
     title="BI13 — мобильная съёмка"
     loading="eager"
     scrolling="no"
     tabindex="-1"
-    style="width:100%;border:none;display:block;min-height:600px;overflow:hidden;background:#161616;pointer-events:none;-webkit-tap-highlight-color:transparent;outline:none;"
+    style="width:100%;border:none;display:block;min-height:600px;overflow:hidden;background:#161616;-webkit-tap-highlight-color:transparent;outline:none;"
   ></iframe>
-  <div
-    id="bi13-highlevel-shield"
-    style="position:absolute;left:0;top:0;right:0;bottom:0;z-index:2;touch-action:pan-y;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;user-select:none;"
-  ></div>
 </div>
 <script>
 (function () {
@@ -31,19 +25,13 @@
   var SCROLL_TYPE = 'bi13-scroll';
   var VIEWPORT_TYPE = 'bi13-highlevel-viewport';
   var WIDTH_TYPE = 'bi13-highlevel-width';
-  var CLICK_TYPE = 'bi13-highlevel-click';
-  var HSCROLL_TYPE = 'bi13-hscroll';
-  var HRECTS_TYPE = 'bi13-hrects';
+  var PARENT_SCROLL_TYPE = 'bi13-parent-scroll';
 
   var wrap = document.getElementById('bi13-highlevel-wrap');
   var iframe = document.getElementById('bi13-highlevel-frame');
-  var shield = document.getElementById('bi13-highlevel-shield');
-  if (!iframe || !wrap || !shield) return;
+  if (!iframe || !wrap) return;
 
   var viewportTimer = 0;
-  var holes = [];
-  var holeBusy = 0;
-  var lastHoleKey = '';
 
   iframe.setAttribute('tabindex', '-1');
   iframe.addEventListener('focus', function (event) {
@@ -105,150 +93,6 @@
     } catch (e) {}
   }
 
-  function iframePoint(clientX, clientY) {
-    var rect = iframe.getBoundingClientRect();
-    if (!rect.width || !rect.height) return null;
-    return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
-    };
-  }
-
-  function forwardClick(clientX, clientY) {
-    var pt = iframePoint(clientX, clientY);
-    if (!pt) return;
-    try {
-      iframe.contentWindow.postMessage({ type: CLICK_TYPE, x: pt.x, y: pt.y }, '*');
-    } catch (e) {}
-  }
-
-  function sendHScroll(index, dx) {
-    if (!dx) return;
-    try {
-      iframe.contentWindow.postMessage({ type: HSCROLL_TYPE, i: index, dx: dx }, '*');
-    } catch (e) {}
-  }
-
-  function clearHoles() {
-    holes.forEach(function (el) {
-      if (el.parentNode) el.parentNode.removeChild(el);
-    });
-    holes = [];
-  }
-
-  function bindHole(hole, index) {
-    var lastX = 0;
-    var lastY = 0;
-    var dragged = false;
-    var active = false;
-    var viaTouch = false;
-
-    function client(event) {
-      if (event.touches && event.touches[0]) {
-        return { x: event.touches[0].clientX, y: event.touches[0].clientY };
-      }
-      if (event.changedTouches && event.changedTouches[0]) {
-        return { x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY };
-      }
-      return { x: event.clientX, y: event.clientY };
-    }
-
-    function onStart(event, fromTouch) {
-      if (fromTouch) viaTouch = true;
-      if (!fromTouch && viaTouch) return;
-      var p = client(event);
-      lastX = p.x;
-      lastY = p.y;
-      dragged = false;
-      active = true;
-      holeBusy += 1;
-      if (!fromTouch && event.pointerId != null && hole.setPointerCapture) {
-        try { hole.setPointerCapture(event.pointerId); } catch (e) {}
-      }
-    }
-
-    function onMove(event, fromTouch) {
-      if (!fromTouch && viaTouch) return;
-      if (!active) return;
-      var p = client(event);
-      var dx = p.x - lastX;
-      var dy = p.y - lastY;
-      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) dragged = true;
-      lastX = p.x;
-      lastY = p.y;
-      if (Math.abs(dx) >= Math.abs(dy)) {
-        event.preventDefault();
-        sendHScroll(index, dx);
-      }
-    }
-
-    function onEnd(event, fromTouch) {
-      if (!fromTouch && viaTouch) {
-        viaTouch = false;
-        return;
-      }
-      if (!active) return;
-      active = false;
-      holeBusy = Math.max(0, holeBusy - 1);
-      if (!dragged) {
-        var p = client(event);
-        forwardClick(p.x, p.y);
-      }
-      if (fromTouch) viaTouch = false;
-    }
-
-    hole.addEventListener('touchstart', function (e) { onStart(e, true); }, { passive: true });
-    hole.addEventListener('touchmove', function (e) { onMove(e, true); }, { passive: false });
-    hole.addEventListener('touchend', function (e) { onEnd(e, true); }, { passive: true });
-    hole.addEventListener('touchcancel', function (e) { onEnd(e, true); }, { passive: true });
-    hole.addEventListener('pointerdown', function (e) { onStart(e, false); }, { passive: true });
-    hole.addEventListener('pointermove', function (e) { onMove(e, false); }, { passive: false });
-    hole.addEventListener('pointerup', function (e) { onEnd(e, false); }, { passive: true });
-    hole.addEventListener('pointercancel', function (e) { onEnd(e, false); }, { passive: true });
-  }
-
-  function holeKey(rects) {
-    if (!rects || !rects.length) return '';
-    return rects.map(function (r) {
-      return [r.i, Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)].join(':');
-    }).join('|');
-  }
-
-  function syncHoles(rects) {
-    if (holeBusy) return;
-    var key = holeKey(rects);
-    if (key === lastHoleKey) return;
-    lastHoleKey = key;
-    clearHoles();
-    if (!rects || !rects.length) return;
-    for (var i = 0; i < rects.length; i++) {
-      var r = rects[i];
-      if (!r || r.width < 40 || r.height < 40) continue;
-      var hole = document.createElement('div');
-      hole.setAttribute('data-bi13-hole', String(r.i != null ? r.i : i));
-      hole.setAttribute('aria-hidden', 'true');
-      hole.style.cssText = [
-        'position:absolute',
-        'left:' + Math.round(r.left) + 'px',
-        'top:' + Math.round(r.top) + 'px',
-        'width:' + Math.round(r.width) + 'px',
-        'height:' + Math.round(r.height) + 'px',
-        'z-index:3',
-        'touch-action:pan-y',
-        '-webkit-tap-highlight-color:transparent',
-        'outline:none'
-      ].join(';');
-      bindHole(hole, r.i != null ? r.i : i);
-      wrap.appendChild(hole);
-      holes.push(hole);
-    }
-  }
-
-  shield.addEventListener('click', function (event) {
-    event.preventDefault();
-    forwardClick(event.clientX, event.clientY);
-  });
-
   window.addEventListener('message', function (event) {
     var data = event.data;
     if (!data || typeof data !== 'object') return;
@@ -257,8 +101,9 @@
       sendViewport();
       return;
     }
-    if (data.type === HRECTS_TYPE && data.rects) {
-      syncHoles(data.rects);
+    if (data.type === PARENT_SCROLL_TYPE) {
+      var dy = Number(data.dy);
+      if (dy) window.scrollBy(0, dy);
       return;
     }
     if (data.type === SCROLL_TYPE || data.type === 'bi13-highlevel-scroll') {
