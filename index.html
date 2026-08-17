@@ -6,7 +6,7 @@
   <title>BI13 · мобильная съёмка</title>
   <meta name="description" content="Школа визуального мышления BI13. Мобильная съёмка: два уровня, один маршрут." />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- bi13 cache: 20260817-25 -->
+  <!-- bi13 cache: 20260817-26 -->
   <style>
     @font-face {
       font-family: Manrope;
@@ -3056,9 +3056,11 @@
         applyLinkTargets();
         bootReveal();
         bootFaq();
-        ["audTrack", "reviewTrack", "skillTrack"].forEach(function (id) {
-          var el = document.getElementById(id);
-          if (el) el.addEventListener("scroll", scheduleHeight, { passive: true });
+        document.querySelectorAll("[data-hscroll]").forEach(function (el) {
+          el.addEventListener("scroll", function () {
+            postHRects();
+            scheduleHeight();
+          }, { passive: true });
         });
         applyTildaScale();
         lastHeight = 0;
