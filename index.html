@@ -6,7 +6,7 @@
   <title>BI13 · мобильная съёмка</title>
   <meta name="description" content="Школа визуального мышления BI13. Мобильная съёмка: два уровня, один маршрут." />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- bi13 cache: 20260817-30 -->
+  <!-- bi13 cache: 20260817-31 -->
   <style>
     @font-face {
       font-family: Manrope;
@@ -239,35 +239,6 @@
     html.bi13-tilda-scale .skill-track {
       margin-right: 0;
     }
-    html.bi13-embedded .audience-stage,
-    html.bi13-embedded .results__cards,
-    html.bi13-embedded .skill-track {
-      display: flex !important;
-      overflow-x: auto !important;
-      scroll-snap-type: x mandatory;
-      touch-action: pan-x;
-      -webkit-overflow-scrolling: touch;
-    }
-    html.bi13-embedded .audience-stage {
-      position: relative;
-      left: auto;
-      transform: none;
-      width: 100%;
-      grid-template-columns: none;
-      justify-content: flex-start;
-      gap: var(--space-stack, 12px);
-      pointer-events: auto;
-    }
-    html.bi13-embedded .results__cards {
-      grid-template-columns: none;
-    }
-    html.bi13-embedded .aud-card,
-    html.bi13-embedded .review-card {
-      flex: 0 0 calc(100% - var(--peek, 24px));
-      scroll-snap-align: start;
-      max-width: none;
-    }
-    html.bi13-embedded .aud-card--offset { margin-top: 0; }
     [data-hscroll] {
       overflow-x: auto;
       scroll-snap-type: x mandatory;
@@ -279,6 +250,71 @@
       -ms-overflow-style: none;
     }
     [data-hscroll]::-webkit-scrollbar { display: none; }
+    .hscroll-wrap {
+      position: relative;
+    }
+    .audience-compose > .hscroll-wrap {
+      position: absolute;
+      z-index: 3;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 0;
+      width: min(100% - var(--pad) * 2, 1166px);
+      pointer-events: none;
+    }
+    .audience-compose > .hscroll-wrap .audience-stage {
+      position: relative;
+      left: auto;
+      transform: none;
+      width: 100%;
+    }
+    .hscroll-btn {
+      position: absolute;
+      top: 50%;
+      z-index: 5;
+      width: 36px;
+      height: 36px;
+      margin: 0;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.94);
+      color: #181818;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      transform: translateY(-50%);
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.2s ease;
+    }
+    .hscroll-wrap.is-scrollable .hscroll-btn {
+      display: flex;
+    }
+    .hscroll-btn:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+    .hscroll-btn--prev { left: 6px; }
+    .hscroll-btn--next { right: 6px; }
+    .hscroll-btn::before {
+      content: "";
+      display: block;
+      width: 8px;
+      height: 8px;
+      border-left: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+    }
+    .hscroll-btn--prev::before {
+      transform: rotate(45deg);
+      margin-left: 3px;
+    }
+    .hscroll-btn--next::before {
+      transform: rotate(-135deg);
+      margin-right: 3px;
+    }
     img {
       display: block;
       width: 100%;
@@ -912,6 +948,13 @@
       .hero__center { gap: var(--space-gap); padding: var(--space-gap) 0; max-width: 100%; }
       .hero__center h1 .hero__h1-line { white-space: normal; }
       .audience-compose { padding-top: 0; }
+      .audience-compose > .hscroll-wrap {
+        position: relative;
+        left: auto;
+        transform: none;
+        width: 100%;
+        pointer-events: auto;
+      }
       .audience-band { height: auto; min-height: 0; }
       .audience-band__cta {
         position: relative;
@@ -2753,8 +2796,6 @@
       var VIEWPORT_TYPE = "bi13-highlevel-viewport";
       var WIDTH_TYPE = "bi13-highlevel-width";
       var CLICK_TYPE = "bi13-highlevel-click";
-      var HRECTS_TYPE = "bi13-hrects";
-      var HSCROLL_TYPE = "bi13-hscroll";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
       var inIframe = window.parent && window.parent !== window;
@@ -2801,25 +2842,6 @@
         return h > 0 ? Math.ceil(h) : 0;
       }
 
-      function postHRects() {
-        if (!inIframe) return;
-        var nodes = document.querySelectorAll("[data-hscroll]");
-        var rects = [];
-        for (var i = 0; i < nodes.length; i++) {
-          var node = nodes[i];
-          if (node.scrollWidth <= node.clientWidth + 1) continue;
-          var r = node.getBoundingClientRect();
-          rects.push({
-            i: i,
-            top: r.top,
-            left: r.left,
-            width: r.width,
-            height: r.height
-          });
-        }
-        postToParent({ type: HRECTS_TYPE, rects: rects });
-      }
-
       function sendHeight() {
         heightRaf = 0;
         if (!inIframe) return;
@@ -2828,7 +2850,6 @@
           lastHeight = height;
           postToParent({ type: RESIZE_TYPE, height: height });
         }
-        postHRects();
       }
 
       function scheduleHeight() {
@@ -3038,7 +3059,64 @@
         });
       }
 
-      function boot() {
+      function bootHscrollArrows() {
+        function scrollStep(track, dir) {
+          var card = track.querySelector(":scope > *");
+          if (!card) return;
+          var style = window.getComputedStyle(track);
+          var gap = parseFloat(style.gap || style.columnGap) || 0;
+          var step = card.getBoundingClientRect().width + gap;
+          track.scrollBy({
+            left: dir * step,
+            behavior: prefersReducedMotion() ? "auto" : "smooth"
+          });
+        }
+
+        function updateWrap(wrap, track) {
+          var prev = wrap.querySelector(".hscroll-btn--prev");
+          var next = wrap.querySelector(".hscroll-btn--next");
+          var scrollable = track.scrollWidth > track.clientWidth + 1;
+          wrap.classList.toggle("is-scrollable", scrollable);
+          if (!scrollable || !prev || !next) return;
+          prev.disabled = track.scrollLeft <= 1;
+          next.disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 1;
+        }
+
+        document.querySelectorAll("[data-hscroll]").forEach(function (track) {
+          if (track.closest(".hscroll-wrap")) return;
+          var wrap = document.createElement("div");
+          wrap.className = "hscroll-wrap";
+          track.parentNode.insertBefore(wrap, track);
+          wrap.appendChild(track);
+
+          var prev = document.createElement("button");
+          prev.type = "button";
+          prev.className = "hscroll-btn hscroll-btn--prev";
+          prev.setAttribute("aria-label", "Назад");
+          var next = document.createElement("button");
+          next.type = "button";
+          next.className = "hscroll-btn hscroll-btn--next";
+          next.setAttribute("aria-label", "Вперёд");
+          wrap.insertBefore(prev, track);
+          wrap.appendChild(next);
+
+          prev.addEventListener("click", function () { scrollStep(track, -1); });
+          next.addEventListener("click", function () { scrollStep(track, 1); });
+          track.addEventListener("scroll", function () {
+            updateWrap(wrap, track);
+          }, { passive: true });
+
+          updateWrap(wrap, track);
+        });
+
+        function refreshAll() {
+          document.querySelectorAll(".hscroll-wrap").forEach(function (wrap) {
+            var track = wrap.querySelector("[data-hscroll]");
+            if (track) updateWrap(wrap, track);
+          });
+        }
+
+        window.addEventListener("resize", refreshAll);
         if (inIframe) document.documentElement.classList.add("bi13-embedded");
         bootParentClicks();
         window.addEventListener("message", function (event) {
@@ -3053,18 +3131,8 @@
             }
             return;
           }
-          if (data.type === HSCROLL_TYPE) {
-            var hNodes = document.querySelectorAll("[data-hscroll]");
-            var hNode = hNodes[data.i];
-            if (!hNode) return;
-            var dx = Number(data.dx);
-            if (!dx) return;
-            hNode.scrollLeft += dx;
-            return;
-          }
           if (data.type === VIEWPORT_TYPE) {
             revealByParentViewport(data.top, data.height);
-            postHRects();
             return;
           }
           if (data.type === PING_TYPE) {
@@ -3096,15 +3164,31 @@
         applyLinkTargets();
         bootReveal();
         bootFaq();
+        bootHscrollArrows();
         document.querySelectorAll("[data-hscroll]").forEach(function (el) {
           el.addEventListener("scroll", function () {
-            postHRects();
             scheduleHeight();
           }, { passive: true });
         });
         applyTildaScale();
         lastHeight = 0;
         scheduleHeight();
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", boot);
+      } else {
+        boot();
+      }
+    })();
+  </script>
+</body>
+</html>
+;
+        applyTildaScale();
+        lastHeight = 0;
+        scheduleHeight();
+        refreshHscrollArrows();
       }
 
       if (document.readyState === "loading") {
