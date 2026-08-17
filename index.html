@@ -226,6 +226,16 @@
     html.bi13-tilda-scale .skill-track {
       margin-right: 0;
     }
+    [data-hscroll] {
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    [data-hscroll]::-webkit-scrollbar { display: none; }
     img {
       display: block;
       width: 100%;
@@ -873,6 +883,7 @@
         position: relative;
         left: auto;
         transform: none;
+        pointer-events: auto;
         display: flex;
         overflow-x: auto;
         scroll-snap-type: x mandatory;
@@ -2620,8 +2631,7 @@
       var SCROLL_TYPE = "bi13-highlevel-scroll";
       var VIEWPORT_TYPE = "bi13-highlevel-viewport";
       var WIDTH_TYPE = "bi13-highlevel-width";
-      var CLICK_TYPE = "bi13-highlevel-click";
-      var SWIPE_TYPE = "bi13-highlevel-swipe";
+      var SCROLLBY_TYPE = "bi13-highlevel-scrollby";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
       var inIframe = window.parent && window.parent !== window;
@@ -2874,49 +2884,55 @@
         });
       }
 
-      function bootParentInput() {
+      function bootParentScroll() {
         if (!inIframe) return;
-        window.addEventListener("message", function (event) {
-          var data = event.data;
-          if (!data || typeof data !== "object") return;
-          if (data.type === CLICK_TYPE) {
-            var x = Number(data.x);
-            var y = Number(data.y);
-            if (!isFinite(x) || !isFinite(y)) return;
-            var el = document.elementFromPoint(x, y);
-            if (!el) return;
-            var target = el.closest("a, button, [role='tab'], .faq-item__q");
-            if (target && typeof target.click === "function") target.click();
-            return;
+        var lock = null;
+        var lastY = 0;
+        var startX = 0;
+        var startY = 0;
+
+        function inHScroll(el) {
+          return !!(el && el.closest && el.closest("[data-hscroll]"));
+        }
+
+        document.addEventListener("wheel", function (event) {
+          if (inHScroll(event.target) && Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+          if (event.cancelable) event.preventDefault();
+          var dy = event.deltaY;
+          if (event.deltaMode === 1) dy *= 16;
+          if (event.deltaMode === 2) dy *= window.innerHeight || 800;
+          postToParent({ type: SCROLLBY_TYPE, dy: dy });
+        }, { passive: false });
+
+        document.addEventListener("touchstart", function (event) {
+          var t = event.changedTouches[0];
+          if (!t) return;
+          lock = null;
+          startX = t.clientX;
+          startY = t.clientY;
+          lastY = t.clientY;
+        }, { passive: true });
+
+        document.addEventListener("touchmove", function (event) {
+          var t = event.changedTouches[0];
+          if (!t) return;
+          var dx = t.clientX - startX;
+          var dy = t.clientY - startY;
+          if (!lock && (dx * dx + dy * dy > 64)) {
+            lock = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
           }
-          if (data.type === SWIPE_TYPE || data.type === "bi13-highlevel-pan") {
-            var px = Number(data.x);
-            var py = Number(data.y);
-            var dx = Number(data.dx) || 0;
-            if (!dx || !isFinite(px) || !isFinite(py)) return;
-            var hit = document.elementFromPoint(px, py);
-            var track = hit && hit.closest("[data-hscroll]");
-            if (!track && hit) {
-              var node = hit;
-              while (node && node !== document.documentElement) {
-                if (node.scrollWidth > node.clientWidth + 2) {
-                  var ox = window.getComputedStyle(node).overflowX;
-                  if (ox === "auto" || ox === "scroll") { track = node; break; }
-                }
-                node = node.parentElement;
-              }
-            }
-            if (track) {
-              track.scrollLeft -= dx;
-              scheduleHeight();
-            }
-          }
-        });
+          if (lock === "x" && inHScroll(event.target)) return;
+          if (lock !== "y") return;
+          if (event.cancelable) event.preventDefault();
+          var step = lastY - t.clientY;
+          lastY = t.clientY;
+          if (step) postToParent({ type: SCROLLBY_TYPE, dy: step });
+        }, { passive: false });
       }
 
       function boot() {
         if (inIframe) document.documentElement.classList.add("bi13-embedded");
-        bootParentInput();
+        bootParentScroll();
         window.addEventListener("message", function (event) {
           var data = event.data;
           if (!data || typeof data !== "object") return;
