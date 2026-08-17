@@ -1,0 +1,69 @@
+<!--
+  Вставьте этот код в блок «HTML-код» (T123) на Тильде.
+  Страница:
+  https://elenasamanchuk.github.io/bi13-highlevel/
+-->
+<div id="bi13-highlevel-wrap" style="width:100%;line-height:0;background:#161616;">
+  <iframe
+    id="bi13-highlevel-frame"
+    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-1"
+    title="BI13 — мобильная съёмка"
+    loading="eager"
+    style="width:100%;border:0;display:block;min-height:600px;overflow:hidden;background:#161616;"
+  ></iframe>
+</div>
+<script>
+(function () {
+  var RESIZE_TYPE = 'bi13-highlevel-resize';
+  var PING_TYPE = 'bi13-highlevel-ping';
+  var SCROLL_TYPE = 'bi13-highlevel-scroll';
+
+  var wrap = document.getElementById('bi13-highlevel-wrap');
+  var iframe = document.getElementById('bi13-highlevel-frame');
+  if (!iframe || !wrap) return;
+
+  function applyHeight(height) {
+    if (!height || height < 100) return;
+    iframe.style.height = height + 'px';
+  }
+
+  function scrollToOffset(offset) {
+    var rect = iframe.getBoundingClientRect();
+    var y =
+      (window.scrollY || window.pageYOffset || 0) +
+      rect.top +
+      (Number(offset) || 0);
+    window.scrollTo({ top: Math.max(0, Math.round(y)), behavior: 'smooth' });
+  }
+
+  window.addEventListener('message', function (event) {
+    var data = event.data;
+    if (!data || typeof data !== 'object') return;
+    if (data.type === RESIZE_TYPE) {
+      applyHeight(Number(data.height));
+      return;
+    }
+    if (data.type === SCROLL_TYPE) {
+      scrollToOffset(data.offset);
+    }
+  });
+
+  function ping() {
+    try {
+      iframe.contentWindow.postMessage({ type: PING_TYPE }, '*');
+    } catch (e) {}
+  }
+
+  iframe.addEventListener('load', function () {
+    ping();
+    [50, 150, 400, 1000].forEach(function (ms) {
+      setTimeout(ping, ms);
+    });
+  });
+
+  window.addEventListener('resize', ping);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', ping);
+  }
+})();
+</script>
