@@ -218,17 +218,22 @@
     html.bi13-embedded body,
     html.bi13-tilda-scale,
     html.bi13-tilda-scale body {
-      overflow: hidden;
+      overflow-x: visible;
+      overflow-y: hidden;
       height: auto;
       overscroll-behavior: none;
     }
-    html.bi13-tilda-scale #page-root { overflow: hidden; }
+    html.bi13-embedded #page-root,
+    html.bi13-tilda-scale #page-root {
+      overflow-x: visible;
+    }
     html.bi13-tilda-scale .skill-track {
       margin-right: 0;
     }
     [data-hscroll] {
       overflow-x: auto;
       scroll-snap-type: x mandatory;
+      scroll-behavior: auto;
       -webkit-overflow-scrolling: touch;
       touch-action: pan-x;
       overscroll-behavior-x: contain;
@@ -877,7 +882,8 @@
         top: auto;
         margin: var(--space-gap) auto 0;
         padding: 0 0 var(--space-section);
-        width: min(518px, calc(100% - 40px));
+        width: min(100% - var(--pad) * 2, 1166px);
+        box-sizing: border-box;
       }
       .audience-stage {
         position: relative;
@@ -980,7 +986,8 @@
         top: auto;
         margin: var(--space-gap) auto;
         padding: 0 0 var(--space-gap);
-        width: 100%;
+        width: calc(100% - var(--pad) * 2);
+        box-sizing: border-box;
       }
       .prog--photo { width: 100%; max-width: none; height: auto; min-height: 0; }
       .format { grid-template-columns: 1fr; gap: var(--space-gap); }
@@ -1389,7 +1396,7 @@
     #skill {
       padding: 56px 0 72px;
       background: var(--bg);
-      overflow: hidden;
+      overflow-x: visible;
     }
     .skill-head {
       display: flex;
@@ -1409,7 +1416,7 @@
       gap: 14px;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
-      scroll-behavior: smooth;
+      scroll-behavior: auto;
       padding-bottom: 8px;
       margin-right: calc(50% - 50vw);
       padding-right: var(--pad);
@@ -1994,7 +2001,11 @@
       #faq { padding: 28px 0 32px !important; }
       #final { padding: 16px 0 28px !important; }
       .audience-band { height: auto !important; min-height: 0 !important; }
-      .audience-band__cta { padding-bottom: 16px !important; }
+      .audience-band__cta {
+        padding-bottom: 16px !important;
+        width: min(100% - var(--pad) * 2, 1166px) !important;
+        box-sizing: border-box;
+      }
       .faq-photo { height: auto !important; aspect-ratio: 340 / 276; }
       .final-stage { gap: 16px; min-height: 0 !important; }
       .final-center { padding: 16px 12px 24px; }
@@ -2044,8 +2055,8 @@
       .aud-card,
       .review-card,
       .skill-card {
-        flex: 0 0 85% !important;
-        max-width: 85%;
+        flex: 0 0 82% !important;
+        max-width: 82%;
       }
       .skill-card {
         grid-template-columns: 1fr !important;
@@ -2673,7 +2684,7 @@
       var VIEWPORT_TYPE = "bi13-highlevel-viewport";
       var WIDTH_TYPE = "bi13-highlevel-width";
       var CLICK_TYPE = "bi13-highlevel-click";
-      var HSCROLL_TYPE = "bi13-highlevel-hscroll";
+      var HSCROLL_TYPE = "bi13-hscroll";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
       var inIframe = window.parent && window.parent !== window;
@@ -2727,35 +2738,14 @@
         ));
       }
 
-      function postHScrollRects() {
-        if (!inIframe) return;
-        var nodes = document.querySelectorAll("[data-hscroll]");
-        var rects = [];
-        for (var i = 0; i < nodes.length; i++) {
-          var r = nodes[i].getBoundingClientRect();
-          if (r.width < 8 || r.height < 8) continue;
-          rects.push({
-            left: Math.round(r.left),
-            top: Math.round(r.top),
-            width: Math.round(r.width),
-            height: Math.round(r.height)
-          });
-        }
-        postToParent({ type: HSCROLL_TYPE, rects: rects });
-      }
-
       function sendHeight() {
         heightRaf = 0;
         if (!inIframe) return;
         var height = measure();
         if (!height || height < 100) return;
-        if (Math.abs(height - lastHeight) < 2) {
-          postHScrollRects();
-          return;
-        }
+        if (Math.abs(height - lastHeight) < 2) return;
         lastHeight = height;
         postToParent({ type: RESIZE_TYPE, height: height });
-        postHScrollRects();
       }
 
       function scheduleHeight() {
@@ -2951,7 +2941,20 @@
         if (!inIframe) return;
         window.addEventListener("message", function (event) {
           var data = event.data;
-          if (!data || data.type !== CLICK_TYPE) return;
+          if (!data || typeof data !== "object") return;
+          if (data.type === HSCROLL_TYPE) {
+            var hx = Number(data.x);
+            var hy = Number(data.y);
+            var dx = Number(data.dx);
+            if (!isFinite(hx) || !isFinite(hy) || !isFinite(dx) || !dx) return;
+            var hit = document.elementFromPoint(hx, hy);
+            if (!hit) return;
+            var track = hit.closest("[data-hscroll]");
+            if (!track) return;
+            track.scrollLeft += dx;
+            return;
+          }
+          if (data.type !== CLICK_TYPE) return;
           var x = Number(data.x);
           var y = Number(data.y);
           if (!isFinite(x) || !isFinite(y)) return;
