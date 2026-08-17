@@ -22,6 +22,8 @@ const TAPLINK_ROOT =
   process.env.BI13_TAPLINK_ROOT || path.resolve(ROOT, "../bi13-taplink");
 const TAPLINK_GITHUB_REPO = "elenasamanchuk/bi13-taplink";
 const CDN_GITHUB_REPO = "elenasamanchuk/bi13-highlevel";
+const CDN_FONT_SHA =
+  process.env.BI13_FONT_SHA || "1935b7b9287da46d96afce16d6c816d1031dfd56";
 const GITHUB_REF = process.env.BI13_GITHUB_REF || "main";
 const FROM_LOCAL = process.env.BI13_FROM_LOCAL === "1";
 const GITHUB_RAW = `https://raw.githubusercontent.com/${TAPLINK_GITHUB_REPO}/${GITHUB_REF}/`;
@@ -32,29 +34,39 @@ const TILDA_HEADER_OFFSET = 80;
 
 function resolveCommitSha() {
   if (process.env.BI13_GITHUB_REF && process.env.BI13_GITHUB_REF.length >= 7) {
-    return process.env.BI13_GITHUB_REF;
+    return cdnRef(process.env.BI13_GITHUB_REF);
   }
   try {
     execSync("git fetch origin main", { cwd: ROOT, stdio: "pipe" });
-    return execSync("git rev-parse origin/main", {
+    const sha = execSync("git rev-parse origin/main", {
       cwd: ROOT,
       encoding: "utf8",
     }).trim();
+    return cdnRef(sha);
   } catch {
     try {
-      return execSync("git rev-parse HEAD", {
+      const sha = execSync("git rev-parse HEAD", {
         cwd: ROOT,
         encoding: "utf8",
       }).trim();
+      return cdnRef(sha);
     } catch {
-      return GITHUB_REF;
+      return cdnRef(GITHUB_REF);
     }
   }
+}
+
+function cdnRef(sha) {
+  const ref = (sha || "main").trim();
+  return ref === "main" ? ref : ref.slice(0, 7);
 }
 
 let BASE =
   process.env.BI13_ASSET_BASE ||
   `https://cdn.jsdelivr.net/gh/${CDN_GITHUB_REPO}@${resolveCommitSha()}/`;
+let FONT_BASE =
+  process.env.BI13_FONT_BASE ||
+  `https://cdn.jsdelivr.net/gh/${CDN_GITHUB_REPO}@${cdnRef(CDN_FONT_SHA)}/`;
 
 async function readFile(name) {
   if (FROM_LOCAL) {
@@ -219,7 +231,7 @@ function minifyCss(css) {
 }
 
 function transformCss(css) {
-  css = css.replace(/url\("\.\/fonts\//g, `url("${BASE}fonts/`);
+  css = css.replace(/url\("\.\/fonts\//g, `url("${FONT_BASE}fonts/`);
   css = removeIframeOnlyCss(css);
   css = css.replace(/\/\*[\s\S]*?\*\//g, "");
   css = css.replace(/:root/g, PREFIX);
@@ -241,12 +253,12 @@ function transformCss(css) {
   css = prefixCss(css, PREFIX);
 
   const wrapperRules = `
-    ${PREFIX} { width:100%; max-width:100%; overflow-x:clip; position:relative; isolation:isolate; display:block; background:var(--bg); color:var(--ink); font-family:Manrope,system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+    ${PREFIX} { width:100%; max-width:100%; min-height:100vh; overflow-x:clip; position:relative; isolation:isolate; display:block; background:#000 !important; color:var(--ink); font-family:Manrope,system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
     ${PREFIX} a, ${PREFIX} button { -webkit-tap-highlight-color:transparent; }
     ${PREFIX} #products, ${PREFIX} section[id] { scroll-margin-top: ${TILDA_HEADER_OFFSET}px; }
     ${PREFIX} img { border:0; vertical-align:top; }
-    ${PREFIX} .page { min-height:0; display:flex; justify-content:center; background:var(--bg); width:100%; margin:0; }
-    ${PREFIX} .shell { min-height:0; margin-inline:auto; }
+    ${PREFIX} .page { min-height:100vh; display:flex; justify-content:center; background:#000 !important; width:100%; margin:0; }
+    ${PREFIX} .shell { min-height:0; margin-inline:auto; background:var(--bg); }
     @media (max-width:519px) { ${PREFIX} { --pad:12px; } ${PREFIX} .shell { width:100%; max-width:none; } }
   `;
 
@@ -398,7 +410,7 @@ async function build() {
     noRootVars: !css.includes(":root {"),
     scopedJs: js.includes('getElementById("bi13-taplink-wrap")'),
     noIframe: !js.includes("postMessage") && !js.includes("inIframe"),
-    ghFonts: css.includes(`${BASE}fonts/`),
+    ghFonts: css.includes(`${FONT_BASE}fonts/`),
     ghAssets: pageContent.includes(`${BASE}${ASSET_PREFIX}`),
     jsdelivr: pageContent.includes(`cdn.jsdelivr.net/gh/${CDN_GITHUB_REPO}@`),
   };
