@@ -2073,11 +2073,39 @@
       }
       .skill-card__body p { max-width: none; }
       .skill-card__num { position: static; margin-top: 8px; }
+      .speaker,
+      .speaker__main,
+      .speaker__side,
+      .results,
+      .results__intro {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+      }
       .speaker { grid-template-columns: 1fr !important; }
+      .speaker__main {
+        max-width: 100% !important;
+        justify-self: stretch;
+      }
       .speaker__side { min-height: 0 !important; }
       .speaker__quote { font-size: 16px !important; line-height: 1.25 !important; }
-      .speaker__quote-box { padding: 14px 16px !important; }
+      .speaker__quote-box { width: 100% !important; padding: 14px 16px !important; }
       .speaker__quote cite { margin-top: 8px !important; }
+      .results__intro { align-items: stretch !important; }
+      .results__line {
+        width: 100% !important;
+        max-width: none !important;
+      }
+      .results__line img {
+        width: 100% !important;
+        object-fit: fill;
+      }
+      .results__cta {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        box-sizing: border-box;
+      }
       .path-card h3 { font-size: 16px !important; }
       .prog, .prog--tint { padding: 10px 14px !important; min-height: 0 !important; }
       .tabs { width: 100% !important; max-width: none !important; overflow: hidden !important; }
