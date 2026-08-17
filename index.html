@@ -6,10 +6,87 @@
   <title>BI13 · мобильная съёмка</title>
   <meta name="description" content="Школа визуального мышления BI13. Мобильная съёмка: два уровня, один маршрут." />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
+    @font-face {
+      font-family: Manrope;
+      src: url("./fonts/manrope-cyr-400.woff2") format("woff2");
+      font-weight: 300;
+      font-style: normal;
+      font-display: swap;
+      unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+    @font-face {
+      font-family: Manrope;
+      src: url("./fonts/manrope-400.woff2") format("woff2");
+      font-weight: 300;
+      font-style: normal;
+      font-display: swap;
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: Manrope;
+      src: url("./fonts/manrope-cyr-400.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+      unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+    @font-face {
+      font-family: Manrope;
+      src: url("./fonts/manrope-400.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: Manrope;
+      src: url("./fonts/manrope-cyr-500.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+      unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+    @font-face {
+      font-family: Manrope;
+      src: url("./fonts/manrope-500.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: Manrope;
+      src: url("./fonts/manrope-cyr-600.woff2") format("woff2");
+      font-weight: 600;
+      font-style: normal;
+      font-display: swap;
+      unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+    @font-face {
+      font-family: Manrope;
+      src: url("./fonts/manrope-600.woff2") format("woff2");
+      font-weight: 600;
+      font-style: normal;
+      font-display: swap;
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: Manrope;
+      src: url("./fonts/manrope-cyr-700.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+      unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+    @font-face {
+      font-family: Manrope;
+      src: url("./fonts/manrope-700.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
     :root {
       --bg: #161616;
       --bg-panel: #181818;
@@ -50,7 +127,7 @@
     }
     img { display: block; width: 100%; height: 100%; object-fit: cover; }
     a { color: inherit; text-decoration: none; }
-    button { font: inherit; border: 0; background: none; color: inherit; cursor: pointer; }
+    button { font: inherit; border: 0; background: none; color: inherit; cursor: pointer; border-radius: 0; }
 
     .wrap {
       width: min(100% - var(--pad) * 2, 1166px);
@@ -152,6 +229,7 @@
       justify-items: center;
       padding: 24px 20px 0;
       position: relative;
+      box-sizing: border-box;
     }
     .hero-badge {
       position: relative;
@@ -159,10 +237,12 @@
       align-items: center;
       justify-content: center;
       height: 30px;
-      padding: 0 14px;
+      padding: 1px 15px;
       background: rgba(0, 102, 255, 0.21);
-      border: 1px solid var(--blue);
+      border: 1px solid #06f;
       font-size: 11px;
+      line-height: 14.19px;
+      font-weight: 400;
       white-space: nowrap;
     }
     .hero-badge::before,
@@ -192,29 +272,38 @@
     }
     .hero__center h1 {
       font-weight: 400;
-      font-size: clamp(22px, 4.2vw, 34px);
-      line-height: 1.29;
+      font-size: 34px;
+      line-height: 43.86px;
+      letter-spacing: 0;
       text-transform: uppercase;
     }
     .hero__sub {
-      font-size: clamp(14px, 2vw, 18px);
+      font-size: 18px;
+      line-height: 23.22px;
+      font-weight: 400;
       opacity: 0.5;
-      max-width: 28ch;
+      max-width: 308px;
     }
     .hero__lead {
       font-size: 11px;
+      line-height: 14.19px;
+      font-weight: 400;
       max-width: 251px;
     }
     .hero__cta {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: calc(100% + 40px);
-      margin: 0 -20px;
+      width: 100%;
+      max-width: 639px;
+      margin: 0;
       height: 39px;
-      background: var(--blue);
+      background: #06f;
       color: #fff;
       font-size: 13px;
+      line-height: 16.77px;
+      font-weight: 400;
+      border-radius: 0;
       transition: background 0.2s var(--ease);
     }
     .hero__cta:hover { background: #1a75ff; }
@@ -225,8 +314,9 @@
     }
     .section-title {
       font-weight: 400;
-      font-size: clamp(22px, 2.5vw, 25px);
-      line-height: 1.29;
+      font-size: 25px;
+      line-height: 32.25px;
+      letter-spacing: 0;
       margin-bottom: 40px;
     }
 
@@ -278,7 +368,7 @@
     .audience-band__cta p {
       font-size: 11px;
       font-weight: 500;
-      line-height: 1.45;
+      line-height: 15.95px;
       color: #fff;
       text-shadow: 0 2px 12px rgba(0,0,0,0.55);
     }
@@ -313,7 +403,7 @@
     .aud-card h3 {
       font-weight: 400;
       font-size: 13px;
-      line-height: 1.29;
+      line-height: 16.77px;
       padding: 0 2px;
     }
     .aud-card__row {
@@ -322,7 +412,7 @@
       justify-content: space-between;
       gap: 8px;
       font-size: 10px;
-      line-height: 1.29;
+      line-height: 12.9px;
       padding: 0 2px;
     }
     .aud-card__row p {
@@ -345,6 +435,9 @@
       background: #fff;
       color: #181818;
       font-size: 13px;
+      line-height: 16.77px;
+      font-weight: 400;
+      border-radius: 0;
       transition: opacity 0.2s;
     }
     .btn-white:hover { opacity: 0.9; }
@@ -359,9 +452,9 @@
       grid-template-columns: 100px 1fr;
       gap: 14px;
       align-items: center;
-      background: var(--bg-card);
-      border: 1px solid var(--line);
-      padding-right: 14px;
+      background: #111;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      padding: 1px 14px 1px 1px;
     }
     .path-card__img {
       width: 100px;
@@ -374,26 +467,28 @@
       justify-content: space-between;
       gap: 8px;
       font-size: 11px;
+      line-height: 14.19px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      margin-bottom: 4px;
+      margin-bottom: 0;
     }
     .path-card__meta .lvl {
-      color: var(--blue-soft);
+      color: #2a64f6;
       font-weight: 500;
     }
-    .path-card__meta span:last-child { color: var(--muted); }
+    .path-card__meta span:last-child { color: rgba(255, 255, 255, 0.62); font-weight: 400; }
     .path-card h3 {
       font-weight: 400;
       font-size: clamp(22px, 3vw, 28px);
       text-transform: uppercase;
-      line-height: 1.2;
-      margin-bottom: 4px;
+      line-height: 33.6px;
+      margin: 4px 0 0;
     }
     .path-card p {
-      color: var(--muted);
+      color: rgba(255, 255, 255, 0.62);
       font-size: 13px;
-      line-height: 1.35;
+      line-height: 17.55px;
+      margin-top: 4px;
     }
 
     /* ===== PROGRAM ===== */
@@ -516,11 +611,12 @@
       .hero__copy {
         height: 616px;
         min-height: 616px;
-        padding: 21px 0 0;
+        padding: 21px 21px 0;
       }
       .hero__center { gap: 40px; padding: 0 48px; }
       .hero__cta {
         width: 100%;
+        max-width: 639px;
         margin: 0;
       }
 
@@ -542,7 +638,7 @@
       .path-card {
         grid-template-columns: 140px 1fr;
         gap: 18px;
-        padding-right: 18px;
+        padding: 1px 19px 1px 1px;
       }
       .path-card__img {
         width: 140px;
@@ -620,7 +716,7 @@
       .hero__row { width: calc(100% - 32px); }
       .hero__copy { min-height: 0; padding: 20px 16px 0; }
       .hero__center { gap: 16px; padding: 16px 0; }
-      .hero__center h1 { font-size: 22px; }
+      .hero__center h1 { font-size: 22px; line-height: 1.29; }
       .hero__sub { font-size: 14px; }
       .hero__cta {
         width: 100%;
@@ -704,13 +800,7 @@
       align-items: stretch;
     }
     .format-mosaic {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 3px;
-      background: var(--bg);
-    }
-    .format-mosaic figure {
-      margin: 0;
+      width: 100%;
       aspect-ratio: 1;
       overflow: hidden;
       background: #222;
@@ -726,7 +816,7 @@
       flex-direction: column;
       justify-content: space-between;
       gap: 28px;
-      padding: 28px 40px;
+      padding: 28px 44px;
       min-height: 100%;
       border: 0;
     }
@@ -767,14 +857,14 @@
     .format-feature h3 {
       font-weight: 500;
       font-size: 13px;
-      line-height: 1.3;
+      line-height: 16.9px;
       text-transform: uppercase;
       letter-spacing: 0.02em;
     }
     .format-feature p {
       grid-column: 2;
       font-size: 11px;
-      line-height: 1.4;
+      line-height: 15.4px;
       color: rgba(255, 255, 255, 0.72);
       max-width: 28ch;
     }
@@ -784,9 +874,11 @@
       justify-content: center;
       height: 48px;
       border: 0;
-      background: var(--blue);
+      border-radius: 0;
+      background: #06f;
       color: #fff;
       font-size: 12px;
+      line-height: 15.48px;
       font-weight: 500;
       text-align: center;
       transition: background 0.2s var(--ease);
@@ -1162,7 +1254,7 @@
       border: 1px solid rgba(255, 255, 255, 0.35);
       border-left: 0;
       height: 139px;
-      padding: 14px 16px 28px;
+      padding: 15px 16px 10px;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -1170,14 +1262,14 @@
       overflow: hidden;
     }
     .skill-card__body h3 {
-      font-weight: 500;
-      font-size: 15px;
-      line-height: 1.2;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 18px;
       color: #fff;
     }
     .skill-card__body p {
       font-size: 11px;
-      line-height: 1.3;
+      line-height: 14.3px;
       color: rgba(255, 255, 255, 0.72);
       max-width: 28ch;
     }
@@ -1235,32 +1327,32 @@
       align-items: center;
       justify-content: center;
       min-height: 32px;
-      padding: 6px 16px;
+      padding: 7px 17px;
       background: rgba(0, 102, 255, 0.21);
-      border: 1px solid var(--blue);
+      border: 1px solid #06f;
       color: #fff;
       font-size: 13px;
       font-weight: 400;
-      line-height: 1.3;
+      line-height: 16.9px;
     }
     .speaker__name {
       font-size: clamp(28px, 3.2vw, 40px);
       font-weight: 500;
-      line-height: 1.15;
+      line-height: 46px;
       color: #fff;
       text-transform: none;
     }
     .speaker__bio {
       font-size: 14px;
       font-weight: 400;
-      line-height: 1.45;
+      line-height: 20.3px;
       color: rgba(255, 255, 255, 0.62);
       max-width: none;
       width: 100%;
     }
     .speaker__quote-box {
       margin-top: 8px;
-      padding: 22px 24px;
+      padding: 23px 25px;
       border: 1px solid rgba(0, 102, 255, 0.55);
       max-width: none;
       width: 100%;
@@ -1269,7 +1361,7 @@
     .speaker__quote {
       font-size: clamp(16px, 1.8vw, 20px);
       font-weight: 400;
-      line-height: 1.35;
+      line-height: 27px;
       color: #fff;
       text-transform: none;
       margin: 0;
@@ -1460,18 +1552,19 @@
     }
     .faq-photo {
       overflow: hidden;
-      border: 1px solid var(--line);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       max-width: 400px;
       width: 100%;
-      aspect-ratio: 3 / 4;
+      height: 276px;
       background: #222;
-      align-self: stretch;
+      align-self: start;
     }
     .faq-photo img {
       width: 100%;
-      height: 100%;
+      height: 102.55%;
       object-fit: cover;
-      object-position: center;
+      object-position: center 0;
+      margin-top: -14.6%;
     }
     .faq-list {
       border-top: 1px solid rgba(255, 255, 255, 0.3);
@@ -1479,9 +1572,8 @@
     .faq-item {
       border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     }
-    .faq-item summary {
-      list-style: none;
-      cursor: pointer;
+    .faq-item__q {
+      width: 100%;
       padding: 16px 0;
       display: flex;
       justify-content: space-between;
@@ -1489,22 +1581,31 @@
       align-items: center;
       font-weight: 400;
       font-size: 15px;
+      line-height: 19.35px;
+      text-align: left;
     }
-    .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary::after {
+    .faq-item__q::after {
       content: "+";
       color: var(--blue);
       font-size: 22px;
       line-height: 1;
       flex-shrink: 0;
     }
-    .faq-item[open] summary::after { content: "−"; }
-    .faq-item p {
+    .faq-item.is-open .faq-item__q::after { content: "−"; }
+    .faq-item__a {
+      overflow: hidden;
+      height: 0;
+      opacity: 0;
+    }
+    .faq-item__a p {
       padding: 0 0 16px;
       color: var(--muted);
       font-size: 14px;
       line-height: 1.45;
       max-width: 52ch;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .faq-item__a { transition: none !important; }
     }
     @media (min-width: 900px) {
       .faq-layout {
@@ -1513,16 +1614,15 @@
         align-items: stretch;
       }
       .faq-photo {
-        min-height: 0;
-        max-height: none;
-        height: 100%;
-        aspect-ratio: auto;
+        width: 340px;
+        height: 276px;
+        max-width: 340px;
       }
     }
 
     /* ===== FINAL / НАЧНИ ПУТЬ ===== */
     #final {
-      padding: 56px 0 72px;
+      padding: 0;
       background: var(--bg);
     }
     .final-stage {
@@ -1577,7 +1677,7 @@
       z-index: 1;
       font-size: 12px;
       line-height: 1.3;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.48px;
       color: #fff;
       white-space: nowrap;
       background: var(--bg);
@@ -1609,7 +1709,7 @@
       margin: 0;
       font-weight: 400;
       font-size: 15px;
-      line-height: 1.4;
+      line-height: 21px;
       text-transform: none;
       color: rgba(255, 255, 255, 0.55);
     }
@@ -1634,7 +1734,7 @@
     }
     @media (min-width: 900px) {
       #final {
-        padding: 72px 0 96px;
+        padding: 0;
       }
       .final-stage {
         grid-template-columns: auto 28px minmax(280px, 1fr) 28px auto;
@@ -1680,19 +1780,19 @@
   <section class="hero" aria-label="Hero">
     <div class="hero__row">
       <div class="hero__visual" data-reveal>
-        <img src="assets/hero-main.png" alt="" />
+        <img src="assets/hero-main.webp" alt="" />
       </div>
       <div class="hero__copy">
         <div class="hero-badge" data-reveal style="--reveal-delay: 80ms">
           <i aria-hidden="true"></i>
-          [ старт продаж 17 августа ]
+          [ старт курса 1 июня ]
         </div>
         <div class="hero__center">
-          <h1 data-reveal style="--reveal-delay: 140ms">Школа визуального мышления BI13</h1>
-          <p class="hero__sub" data-reveal style="--reveal-delay: 200ms">Ты не учишься снимать, ты учишься замечать</p>
-          <p class="hero__lead" data-reveal style="--reveal-delay: 260ms">Контент — это язык современного мира.<br />Мобильная съёмка: два уровня, один маршрут.</p>
+          <h1 data-reveal style="--reveal-delay: 140ms">Мобильная съёмка:<br />два уровня, один маршрут</h1>
+          <p class="hero__sub" data-reveal style="--reveal-delay: 200ms">Школа визуального мышления BI13</p>
+          <p class="hero__lead" data-reveal style="--reveal-delay: 260ms">Контент — это язык современного мира.<br />Ты не учишься снимать, ты учишься замечать</p>
         </div>
-        <a class="hero__cta" href="#pricing" data-reveal style="--reveal-delay: 320ms">Посмотреть тарифы</a>
+        <a class="hero__cta" href="#pricing" data-reveal style="--reveal-delay: 320ms">Выбрать путь</a>
       </div>
     </div>
   </section>
@@ -1704,7 +1804,7 @@
     <div class="audience-compose">
       <div class="audience-band">
         <div class="audience-band__bg" aria-hidden="true">
-          <img src="assets/audience-bg.png" alt="" />
+          <img src="assets/audience-bg.webp" alt="" />
         </div>
         <div class="audience-band__cta">
           <p>Aesthetic даёт фундамент. High Level — уверенность. Пакет — путь целиком, без паузы между шагами.</p>
@@ -1713,7 +1813,7 @@
       </div>
       <div class="audience-stage">
         <article class="aud-card" data-reveal>
-          <div class="aud-card__img"><img src="assets/card-01.png" alt="" loading="lazy" /></div>
+          <div class="aud-card__img"><img src="assets/card-01.webp" alt="" loading="lazy" /></div>
           <h3>С нуля</h3>
           <div class="aud-card__row">
             <p>Ещё не снимала эстетично — Aesthetic даст базу и систему.</p>
@@ -1721,7 +1821,7 @@
           </div>
         </article>
         <article class="aud-card" data-reveal style="--reveal-delay: 70ms">
-          <div class="aud-card__img"><img src="assets/card-02.png" alt="" loading="lazy" /></div>
+          <div class="aud-card__img"><img src="assets/card-02.webp" alt="" loading="lazy" /></div>
           <h3>Уже снимаю</h3>
           <div class="aud-card__row">
             <p>Хочу вывести кадры на уровень, который можно показывать брендам.</p>
@@ -1729,7 +1829,7 @@
           </div>
         </article>
         <article class="aud-card aud-card--offset" data-reveal style="--reveal-delay: 140ms">
-          <div class="aud-card__img"><img src="assets/card-03.png" alt="" loading="lazy" /></div>
+          <div class="aud-card__img"><img src="assets/card-03.webp" alt="" loading="lazy" /></div>
           <h3>Закрыть навык</h3>
           <div class="aud-card__row">
             <p>Хочу пройти маршрут целиком — без паузы «что дальше».</p>
@@ -1737,7 +1837,7 @@
           </div>
         </article>
         <article class="aud-card" data-reveal style="--reveal-delay: 210ms">
-          <div class="aud-card__img"><img src="assets/card-04.png" alt="" loading="lazy" /></div>
+          <div class="aud-card__img"><img src="assets/card-04.webp" alt="" loading="lazy" /></div>
           <h3>Для своего дела</h3>
           <div class="aud-card__row">
             <p>Кофейня, практика, магазин — показать продукт без фотографа.</p>
@@ -1753,7 +1853,7 @@
       <h2 class="section-title" data-reveal>Один путь. Два уровня</h2>
       <div class="path">
         <article class="path-card" data-reveal>
-          <div class="path-card__img"><img src="assets/path-a.png" alt="" loading="lazy" /></div>
+          <div class="path-card__img"><img src="assets/path-a.webp" alt="" loading="lazy" /></div>
           <div>
             <div class="path-card__meta">
               <span class="lvl">Уровень 1</span>
@@ -1764,7 +1864,7 @@
           </div>
         </article>
         <article class="path-card" data-reveal style="--reveal-delay: 80ms">
-          <div class="path-card__img"><img src="assets/path-b.png" alt="" loading="lazy" /></div>
+          <div class="path-card__img"><img src="assets/path-b.webp" alt="" loading="lazy" /></div>
           <div>
             <div class="path-card__meta">
               <span class="lvl">Уровень 2</span>
@@ -1804,7 +1904,7 @@
             <p>Поговорим о том, где живёт мобильный контент, почему одни форматы становятся вирусными, а другие проходят мимо.</p>
           </article>
           <article class="prog prog--photo">
-            <img src="assets/program-photo.png" alt="" loading="lazy" />
+            <img src="assets/program-photo.webp" alt="" loading="lazy" />
           </article>
           <article class="prog">
             <span class="prog__num">04</span>
@@ -1881,7 +1981,7 @@
             </ul>
           </article>
           <article class="prog prog--photo">
-            <img src="assets/program-photo.png" alt="" loading="lazy" />
+            <img src="assets/program-photo.webp" alt="" loading="lazy" />
           </article>
           <article class="prog">
             <span class="prog__num">04</span>
@@ -1920,15 +2020,7 @@
   <section class="section" id="format" aria-labelledby="format-title">
     <div class="wrap format">
       <div class="format-mosaic" aria-hidden="true">
-        <figure><img src="assets/format/g8.jpg" alt="" loading="lazy" /></figure>
-        <figure><img src="assets/format/g7.jpg" alt="" loading="lazy" /></figure>
-        <figure><img src="assets/format/g6.jpg" alt="" loading="lazy" /></figure>
-        <figure><img src="assets/format/g5.jpg" alt="" loading="lazy" /></figure>
-        <figure><img src="assets/format/g4.jpg" alt="" loading="lazy" /></figure>
-        <figure><img src="assets/format/g3.jpg" alt="" loading="lazy" /></figure>
-        <figure><img src="assets/format/g2.jpg" alt="" loading="lazy" /></figure>
-        <figure><img src="assets/format/g1.jpg" alt="" loading="lazy" /></figure>
-        <figure><img src="assets/format/g9.jpg" alt="" loading="lazy" /></figure>
+        <img src="assets/format/mosaic.webp" alt="" loading="lazy" />
       </div>
       <div class="format-panel">
         <div class="format-panel__corners" aria-hidden="true">
@@ -1950,7 +2042,7 @@
           <article class="format-feature">
             <span class="format-feature__mark">&gt;</span>
             <h3>Обратная связь</h3>
-            <p>В тарифах с обратной связью: эфир с Настей + личная проверка ДЗ</p>
+            <p>В тарифах с ОС: эфир с Настей + личная проверка ДЗ</p>
           </article>
           <article class="format-feature">
             <span class="format-feature__mark">&gt;</span>
@@ -2122,7 +2214,7 @@
   <section class="section" id="speaker" aria-label="Кто ведёт">
     <div class="wrap speaker">
       <div class="speaker__main" data-reveal>
-        <img src="assets/speaker/hero.png" alt="Настя Бебякина" loading="lazy" />
+        <img src="assets/speaker/hero.webp" alt="Настя Бебякина" loading="lazy" />
       </div>
       <div class="speaker__side" data-reveal style="--reveal-delay: 100ms">
         <span class="speaker__label">Кто ведёт</span>
@@ -2134,7 +2226,7 @@
         <div class="speaker__quote-box">
           <blockquote class="speaker__quote">
             «Я учу не просто снимать. Я показываю, как начать замечать.»
-            <cite>— Настя Бебякина</cite>
+            <cite>— идейный вдохновитель курса</cite>
           </blockquote>
         </div>
       </div>
@@ -2157,7 +2249,7 @@
         <article class="review-card" data-reveal>
           <div class="review-card__person">
             <div class="review-card__avatar">
-              <img src="assets/reviews/olga.png" alt="" loading="lazy" />
+              <img src="assets/reviews/olga.webp" alt="" loading="lazy" />
             </div>
             <div class="review-card__meta">
               <p class="review-card__name">Ольга</p>
@@ -2170,7 +2262,7 @@
         <article class="review-card" data-reveal style="--reveal-delay: 70ms">
           <div class="review-card__person">
             <div class="review-card__avatar">
-              <img src="assets/reviews/dasha.png" alt="" loading="lazy" />
+              <img src="assets/reviews/dasha.webp" alt="" loading="lazy" />
             </div>
             <div class="review-card__meta">
               <p class="review-card__name">Даша</p>
@@ -2183,7 +2275,7 @@
         <article class="review-card" data-reveal style="--reveal-delay: 140ms">
           <div class="review-card__person">
             <div class="review-card__avatar">
-              <img src="assets/reviews/stas.png" alt="" loading="lazy" />
+              <img src="assets/reviews/stas.webp" alt="" loading="lazy" />
             </div>
             <div class="review-card__meta">
               <p class="review-card__name">Стас</p>
@@ -2202,29 +2294,39 @@
       <h2 class="section-title" id="faq-title" data-reveal>Вопросы</h2>
       <div class="faq-layout">
         <div class="faq-photo" data-reveal>
-          <img src="assets/faq-photo.jpg" alt="" loading="lazy" />
+          <img src="assets/faq-photo.webp" alt="" loading="lazy" />
         </div>
         <div class="faq-list" data-reveal style="--reveal-delay: 80ms">
-          <details class="faq-item">
-            <summary>Можно купить только Aesthetic?</summary>
-            <p>Да. Доплатить и добрать High Level можно позже (условия добора уточняются).</p>
-          </details>
-          <details class="faq-item">
-            <summary>Что если не успею сдать ДЗ?</summary>
-            <p>На каждую ступень — отдельная неделя на сдачу ДЗ и эфир с Настей.</p>
-          </details>
-          <details class="faq-item">
-            <summary>Что входит в месяц доступа после High Level?</summary>
-            <p>Пересдача ДЗ и возможность задать вопросы Насте.</p>
-          </details>
-          <details class="faq-item">
-            <summary>Чем Aesthetic отличается от High Level?</summary>
-            <p>Aesthetic — база: снимать красиво на телефон. High Level — продвинутый уровень: контент, который можно показывать брендам.</p>
-          </details>
-          <details class="faq-item">
-            <summary>Нужна ли профессиональная техника?</summary>
-            <p>Нет, всё строится на съёмке на телефон.</p>
-          </details>
+          <div class="faq-item">
+            <button type="button" class="faq-item__q" aria-expanded="false">Можно купить только Aesthetic?</button>
+            <div class="faq-item__a">
+              <p>Да. Доплатить и добрать High Level можно позже (условия добора уточняются).</p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-item__q" aria-expanded="false">Что если не успею сдать ДЗ?</button>
+            <div class="faq-item__a">
+              <p>На каждую ступень — отдельная неделя на сдачу ДЗ и эфир с Настей.</p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-item__q" aria-expanded="false">Что входит в месяц доступа после High Level?</button>
+            <div class="faq-item__a">
+              <p>Пересдача ДЗ и возможность задать вопросы Насте.</p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-item__q" aria-expanded="false">Чем Aesthetic отличается от High Level?</button>
+            <div class="faq-item__a">
+              <p>Aesthetic — база: снимать красиво на телефон. High Level — продвинутый уровень: контент, который можно показывать брендам.</p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-item__q" aria-expanded="false">Нужна ли профессиональная техника?</button>
+            <div class="faq-item__a">
+              <p>Нет, всё строится на съёмке на телефон.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2233,8 +2335,8 @@
   <section class="section" id="final" aria-labelledby="final-title">
     <div class="final-stage">
       <div class="final-col final-col--left" aria-hidden="true">
-        <figure><img src="assets/final/img-tl.png" alt="" loading="lazy" /></figure>
-        <figure><img src="assets/final/img-bl.png" alt="" loading="lazy" /></figure>
+        <figure><img src="assets/final/img-tl.webp" alt="" loading="lazy" /></figure>
+        <figure><img src="assets/final/img-bl.webp" alt="" loading="lazy" /></figure>
       </div>
       <div class="final-rail final-rail--left" aria-hidden="true">
         <span class="final-rail__line"></span>
@@ -2242,7 +2344,7 @@
       </div>
       <div class="final-center" data-reveal>
         <h2 id="final-title">Начни путь</h2>
-        <p>Ближайший поток: 17 августа. High Level — старт 12 октября.</p>
+        <p>Ближайший поток: 1 июня. Продажи открыты до 17 августа.</p>
         <a class="final-center__cta" href="#pricing">Выбрать тариф</a>
       </div>
       <div class="final-rail final-rail--right" aria-hidden="true">
@@ -2250,8 +2352,8 @@
         <span class="final-rail__label">2026</span>
       </div>
       <div class="final-col final-col--right" aria-hidden="true">
-        <figure><img src="assets/final/img-tr.png" alt="" loading="lazy" /></figure>
-        <figure><img src="assets/final/img-br.png" alt="" loading="lazy" /></figure>
+        <figure><img src="assets/final/img-tr.webp" alt="" loading="lazy" /></figure>
+        <figure><img src="assets/final/img-br.webp" alt="" loading="lazy" /></figure>
       </div>
     </div>
   </section>
@@ -2489,12 +2591,61 @@
       });
       if (track) track.addEventListener("scroll", syncNav, { passive: true });
 
-      document.querySelectorAll("details").forEach(function (item) {
-        item.addEventListener("toggle", function () {
-          lastHeight = 0;
-          scheduleHeight();
+      function bootFaq() {
+        var items = Array.prototype.slice.call(document.querySelectorAll(".faq-item"));
+        var ease = "height 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease";
+
+        function setOpen(item, open) {
+          var body = item.querySelector(".faq-item__a");
+          var btn = item.querySelector(".faq-item__q");
+          if (!body || !btn) return;
+          var instant = prefersReducedMotion();
+          item.classList.toggle("is-open", open);
+          btn.setAttribute("aria-expanded", open ? "true" : "false");
+          if (instant) {
+            body.style.transition = "none";
+            body.style.height = open ? "auto" : "0px";
+            body.style.opacity = open ? "1" : "0";
+            lastHeight = 0;
+            scheduleHeight();
+            return;
+          }
+          body.style.transition = ease;
+          if (open) {
+            body.style.height = "0px";
+            body.style.opacity = "0";
+            requestAnimationFrame(function () {
+              body.style.height = body.scrollHeight + "px";
+              body.style.opacity = "1";
+            });
+          } else {
+            body.style.height = body.scrollHeight + "px";
+            requestAnimationFrame(function () {
+              body.style.height = "0px";
+              body.style.opacity = "0";
+            });
+          }
+          body.addEventListener("transitionend", function onEnd(event) {
+            if (event.propertyName !== "height") return;
+            body.removeEventListener("transitionend", onEnd);
+            if (open) body.style.height = "auto";
+            lastHeight = 0;
+            scheduleHeight();
+          });
+        }
+
+        items.forEach(function (item) {
+          var btn = item.querySelector(".faq-item__q");
+          if (!btn) return;
+          btn.addEventListener("click", function () {
+            var willOpen = !item.classList.contains("is-open");
+            items.forEach(function (other) {
+              if (other !== item && other.classList.contains("is-open")) setOpen(other, false);
+            });
+            setOpen(item, willOpen);
+          });
         });
-      });
+      }
 
       function boot() {
         if (inIframe) document.documentElement.classList.add("bi13-embedded");
@@ -2534,6 +2685,7 @@
         });
         applyLinkTargets();
         bootReveal();
+        bootFaq();
         applyTildaScale();
         syncNav();
         scheduleHeight();
