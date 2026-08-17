@@ -248,8 +248,21 @@
       overscroll-behavior-x: contain;
       scrollbar-width: none;
       -ms-overflow-style: none;
+      -webkit-user-select: none;
+      user-select: none;
     }
     [data-hscroll]::-webkit-scrollbar { display: none; }
+    [data-hscroll] .review-card,
+    [data-hscroll] .aud-card,
+    [data-hscroll] .skill-card {
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    [data-hscroll] img {
+      -webkit-user-drag: none;
+      user-drag: none;
+      pointer-events: none;
+    }
     .hscroll-wrap {
       position: relative;
       width: 100%;
@@ -1708,9 +1721,12 @@
       width: min(100%, 241px);
       height: 8px;
       display: block;
+      flex-shrink: 0;
+      overflow: visible;
     }
     .results__line img,
     .results__line svg {
+      display: block;
       width: 100%;
       height: 100%;
       object-fit: contain;
@@ -1845,7 +1861,7 @@
       align-self: start;
     }
     .faq-photo img {
-      object-position: center 38%;
+      object-position: center 25%;
     }
     .faq-list {
       border-top: 1px solid rgba(255, 255, 255, 0.3);
@@ -2213,9 +2229,12 @@
         width: 100% !important;
         max-width: none !important;
       }
-      .results__line img {
+      .results__line img,
+      .results__line svg {
         width: 100% !important;
-        object-fit: fill;
+        height: 8px !important;
+        object-fit: contain !important;
+        object-position: left center !important;
       }
       .results__cta {
         width: 100% !important;
@@ -2699,7 +2718,9 @@
     <div class="wrap results">
       <div class="results__intro" data-reveal>
         <span class="results__line" aria-hidden="true">
-          <img src="assets/reviews/accent-line.webp" alt="" />
+          <svg width="242" height="8" viewBox="0 0 241.5 7.36396" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <path d="M241.354 4.03553C241.549 3.84027 241.549 3.52369 241.354 3.32843L238.172 0.146447C237.976 -0.0488155 237.66 -0.0488155 237.464 0.146447C237.269 0.341709 237.269 0.658291 237.464 0.853554L240.293 3.68198L237.464 6.51041C237.269 6.70567 237.269 7.02225 237.464 7.21751C237.66 7.41278 237.976 7.41278 238.172 7.21751L241.354 4.03553ZM0 3.68198V4.18198H241V3.68198V3.18198H0V3.68198Z" fill="#0066FF"/>
+          </svg>
         </span>
         <h2 class="results__title" id="results-title">Как ты изменишься после курса</h2>
         <p class="results__lead">

@@ -251,6 +251,8 @@ function transformCss(css) {
     ${PREFIX} img { border:0; vertical-align:top; }
     ${PREFIX} [data-hscroll] { cursor: grab; -webkit-user-select: none; user-select: none; }
     ${PREFIX} [data-hscroll].is-dragging { cursor: grabbing; scroll-snap-type: none; }
+    ${PREFIX} [data-hscroll] .review-card, ${PREFIX} [data-hscroll] .aud-card, ${PREFIX} [data-hscroll] .skill-card { -webkit-user-select: none; user-select: none; }
+    ${PREFIX} [data-hscroll] img { -webkit-user-drag: none; user-drag: none; pointer-events: none; }
 `;
 
   return minifyCss(wrapperRules + css);
@@ -426,9 +428,32 @@ function buildJs() {
         root.querySelectorAll("[data-hscroll]").forEach(function (track) {
           var drag = { active: false, moved: false, x: 0, scroll: 0, id: null };
 
+          track.querySelectorAll("img").forEach(function (img) {
+            img.setAttribute("draggable", "false");
+            img.addEventListener("dragstart", function (e) {
+              e.preventDefault();
+            });
+          });
+
           function canScroll() {
             return track.scrollWidth > track.clientWidth + 1;
           }
+
+          track.addEventListener(
+            "dragstart",
+            function (e) {
+              e.preventDefault();
+            },
+            true
+          );
+
+          track.addEventListener(
+            "selectstart",
+            function (e) {
+              if (drag.active || drag.moved) e.preventDefault();
+            },
+            true
+          );
 
           track.addEventListener(
             "wheel",
