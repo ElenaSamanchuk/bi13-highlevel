@@ -220,12 +220,15 @@
     html.bi13-tilda-scale body {
       overflow-x: visible;
       overflow-y: hidden;
-      height: auto;
+      height: auto !important;
+      min-height: 0 !important;
       overscroll-behavior: none;
     }
     html.bi13-embedded #page-root,
     html.bi13-tilda-scale #page-root {
       overflow-x: visible;
+      height: auto !important;
+      min-height: 0 !important;
     }
     html.bi13-tilda-scale .skill-track {
       margin-right: 0;
@@ -2753,19 +2756,12 @@
       }
 
       function measure() {
-        var scale = applyTildaScale();
-        if (root && scale !== 1) {
-          var visual = root.getBoundingClientRect().height;
-          if (visual > 0) return Math.ceil(visual);
-          return Math.ceil(root.offsetHeight * scale);
-        }
-        if (!root) return document.documentElement.scrollHeight || 0;
-        return Math.ceil(Math.max(
-          root.scrollHeight,
-          root.offsetHeight,
-          document.body.scrollHeight,
-          document.documentElement.scrollHeight
-        ));
+        applyTildaScale();
+        var el = root || document.querySelector("#page-root, [data-root], main") || (document.body && document.body.lastElementChild);
+        if (!el) return 0;
+        var r = el.getBoundingClientRect();
+        var h = r.bottom - r.top;
+        return h > 0 ? Math.ceil(h) : 0;
       }
 
       function sendHeight() {
@@ -2985,23 +2981,23 @@
         return zoom;
       }
 
-      function trackFromPoint(ix, iy) {
-        var el = document.elementFromPoint(ix, iy);
+      function rectContains(r, px, py) {
+        return px >= r.left && px <= r.right && py >= r.top && py <= r.bottom;
+      }
+
+      function trackFromPoint(x, y) {
+        var zoom = pageZoom();
+        var ix = x / zoom;
+        var iy = y / zoom;
+        var el = document.elementFromPoint(ix, iy) || document.elementFromPoint(x, y);
         var track = el && el.closest ? el.closest("[data-hscroll]") : null;
         if (track) return track;
         var nodes = document.querySelectorAll("[data-hscroll]");
-        var best = null;
-        var bestDist = Infinity;
         for (var i = 0; i < nodes.length; i++) {
           var r = nodes[i].getBoundingClientRect();
-          if (iy >= r.top && iy <= r.bottom) return nodes[i];
-          var dist = iy < r.top ? r.top - iy : iy - r.bottom;
-          if (dist < bestDist) {
-            bestDist = dist;
-            best = nodes[i];
-          }
+          if (rectContains(r, x, y) || rectContains(r, ix, iy)) return nodes[i];
         }
-        return best;
+        return null;
       }
 
       function bootParentClicks() {
@@ -3015,9 +3011,7 @@
             var dx = Number(data.dx);
             if (!isFinite(hx) || !isFinite(hy) || !isFinite(dx) || !dx) return;
             var zoom = pageZoom();
-            var ix = hx / zoom;
-            var iy = hy / zoom;
-            var track = trackFromPoint(ix, iy);
+            var track = trackFromPoint(hx, hy);
             if (!track) return;
             track.scrollLeft += dx / zoom;
             return;
@@ -3027,7 +3021,7 @@
           var y = Number(data.y);
           if (!isFinite(x) || !isFinite(y)) return;
           var z = pageZoom();
-          var el = document.elementFromPoint(x / z, y / z);
+          var el = document.elementFromPoint(x / z, y / z) || document.elementFromPoint(x, y);
           if (!el) return;
           var target = el.closest("a, button, [data-tab], [role='button']");
           if (!target || typeof target.click !== "function") return;
@@ -3088,6 +3082,7 @@
           if (el) el.addEventListener("scroll", scheduleHeight, { passive: true });
         });
         applyTildaScale();
+        lastHeight = 0;
         scheduleHeight();
       }
 
