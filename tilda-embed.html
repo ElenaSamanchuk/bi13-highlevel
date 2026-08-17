@@ -41,6 +41,7 @@
   var lastX = 0;
   var mode = null;
   var rowIndex = -1;
+  var hDragged = false;
 
   function sendWidth() {
     var width = Math.round(wrap.getBoundingClientRect().width || wrap.clientWidth || 0);
@@ -130,6 +131,7 @@
   }
 
   shield.addEventListener('pointerdown', function (event) {
+    hDragged = false;
     lastX = event.clientX;
     rowIndex = hitRow(event.clientX, event.clientY);
     mode = rowIndex >= 0 ? 'h' : 'v';
@@ -139,6 +141,7 @@
     if (mode === 'v') return;
     if (mode === 'h') {
       event.preventDefault();
+      hDragged = true;
       var dx = event.clientX - lastX;
       lastX = event.clientX;
       try {
@@ -151,7 +154,10 @@
   shield.addEventListener('pointercancel', resetPointer, { passive: true });
 
   shield.addEventListener('click', function (event) {
-    if (mode === 'h') return;
+    if (hDragged) {
+      hDragged = false;
+      return;
+    }
     event.preventDefault();
     forwardClick(event.clientX, event.clientY);
   });
