@@ -2770,8 +2770,11 @@
         var nodes = document.querySelectorAll("[data-hscroll]");
         var rects = [];
         for (var i = 0; i < nodes.length; i++) {
-          var r = nodes[i].getBoundingClientRect();
+          var node = nodes[i];
+          if (node.scrollWidth <= node.clientWidth + 1) continue;
+          var r = node.getBoundingClientRect();
           rects.push({
+            i: i,
             top: r.top,
             left: r.left,
             width: r.width,

@@ -9,7 +9,7 @@
 <div id="bi13-highlevel-wrap" style="position:relative;width:100%;line-height:0;background:#161616;overflow-x:clip;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;outline:none;">
   <iframe
     id="bi13-highlevel-frame"
-    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-23"
+    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-24"
     title="BI13 — мобильная съёмка"
     loading="eager"
     scrolling="no"
@@ -17,7 +17,7 @@
   ></iframe>
   <div
     id="bi13-highlevel-shield"
-    style="position:absolute;left:0;top:0;right:0;bottom:0;z-index:2;touch-action:manipulation;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;outline:none;"
+    style="position:absolute;left:0;top:0;right:0;bottom:0;z-index:2;touch-action:pan-y pan-x manipulation;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;outline:none;"
   ></div>
 </div>
 <script>
@@ -105,14 +105,20 @@
     };
   }
 
-  function hitRow(px, py) {
-    for (var i = 0; i < hrects.length; i++) {
-      var r = hrects[i];
-      if (px >= r.left && px <= r.left + r.width && py >= r.top && py <= r.top + r.height) {
-        return i;
+  function hitRow(clientX, clientY) {
+    for (var j = 0; j < hrects.length; j++) {
+      var r = hrects[j];
+      if (clientX >= r.left && clientX <= r.left + r.width &&
+          clientY >= r.top && clientY <= r.top + r.height) {
+        return r.i != null ? r.i : j;
       }
     }
     return -1;
+  }
+
+  function resetPointer() {
+    mode = null;
+    rowIndex = -1;
   }
 
   function forwardClick(clientX, clientY) {
@@ -124,9 +130,8 @@
   }
 
   shield.addEventListener('pointerdown', function (event) {
-    var pt = iframePoint(event.clientX, event.clientY);
     lastX = event.clientX;
-    rowIndex = pt ? hitRow(pt.x, pt.y) : -1;
+    rowIndex = hitRow(event.clientX, event.clientY);
     mode = rowIndex >= 0 ? 'h' : 'v';
   }, { passive: true });
 
@@ -141,6 +146,9 @@
       } catch (e) {}
     }
   }, { passive: false });
+
+  shield.addEventListener('pointerup', resetPointer, { passive: true });
+  shield.addEventListener('pointercancel', resetPointer, { passive: true });
 
   shield.addEventListener('click', function (event) {
     if (mode === 'h') return;
