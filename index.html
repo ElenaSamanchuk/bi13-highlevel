@@ -2776,7 +2776,6 @@
         var rects = [];
         for (var i = 0; i < nodes.length; i++) {
           var node = nodes[i];
-          if (node.scrollWidth <= node.clientWidth + 1) continue;
           var r = node.getBoundingClientRect();
           rects.push({
             i: i,
