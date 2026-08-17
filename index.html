@@ -135,19 +135,20 @@
         Manrope локально. Taplink сам 430 и без zoom — здесь zoom 320, т.к. макет 1440.
       - Bi13/landing-school: брейкпоинты Тильды 320·480·640·960·1200,
         в CSS max-width 959 / 479; ниже 960 колонки в стек.
-      - popovichfit-tariffs: 320-artboard + zoom при clientWidth ≤ 479.
+      - popovichfit-tariffs: 320-artboard + zoom — НЕ используем: мобильные px
+        уже заданы, zoom раздувает их второй раз.
     */
-    /* Мобилка: читаемость + тач 44px. Десктоп ≥960 остаётся фигмовским. */
+    /* Мобилка: спокойные кегли как 212 / taplink. Десктоп ≥960 — Figma. */
     @media (max-width: 959px) {
       :root {
-        --text-hero: 24px;
-        --text-h2: 22px;
-        --text-path: 22px;
-        --text-final: 24px;
-        --text-card: 16px;
+        --text-hero: 22px;
+        --text-h2: 20px;
+        --text-path: 16px;
+        --text-final: 22px;
+        --text-card: 14px;
         --text-body: 14px;
-        --text-lead: 16px;
-        --text-caption: 12px;
+        --text-lead: 15px;
+        --text-caption: 11px;
         --text-button: 14px;
         --lh-hero: 1.25;
         --lh-h2: 1.2;
@@ -168,15 +169,15 @@
       }
     }
     html.bi13-tilda-scale {
-      --text-hero: 24px;
-      --text-h2: 22px;
-      --text-path: 22px;
-      --text-final: 24px;
-      --text-card: 16px;
-      --text-body: 14px;
-      --text-lead: 16px;
-      --text-caption: 12px;
-      --text-button: 14px;
+      --text-hero: 20px;
+      --text-h2: 18px;
+      --text-path: 16px;
+      --text-final: 20px;
+      --text-card: 13px;
+      --text-body: 13px;
+      --text-lead: 14px;
+      --text-caption: 10px;
+      --text-button: 13px;
       --lh-hero: 1.25;
       --lh-h2: 1.2;
       --lh-path: 1.2;
@@ -236,7 +237,6 @@
     .aud-card__img,
     .path-card__img,
     .prog--photo,
-    .format-mosaic,
     .skill-card__img,
     .speaker__main,
     .review-card__avatar,
@@ -250,7 +250,6 @@
     .aud-card__img img,
     .path-card__img img,
     .prog--photo img,
-    .format-mosaic img,
     .skill-card__img img,
     .speaker__main img,
     .review-card__avatar img,
@@ -576,37 +575,8 @@
       transition: opacity 0.2s;
     }
     .btn-white:hover { opacity: 0.9; }
-    .aud-dots,
-    .review-dots {
-      display: none;
-      justify-content: center;
-      gap: 8px;
-      margin-top: var(--space-stack);
-    }
-    .snap-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.28);
-      padding: 0;
-    }
-    .snap-dot.is-on { background: #fff; }
     @media (max-width: 959px) {
       .tabs button { min-height: 44px; }
-      .snap-dot {
-        width: 44px;
-        height: 44px;
-        background: transparent;
-        position: relative;
-      }
-      .snap-dot::after {
-        content: "";
-        position: absolute;
-        inset: 18.5px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.28);
-      }
-      .snap-dot.is-on::after { background: #fff; }
       .skill-track { touch-action: pan-x pan-y; }
     }
 
@@ -658,7 +628,7 @@
     .path-card p {
       color: rgba(255, 255, 255, 0.62);
       font-size: var(--text-card);
-      line-height: 17.55px;
+      line-height: 1.4;
       margin-top: 4px;
     }
 
@@ -705,13 +675,13 @@
       border-right: 1px solid rgba(255, 255, 255, 0.22);
       border-bottom: 1px solid rgba(255, 255, 255, 0.22);
       border-top: 0;
-      padding: 16px 14px;
-      min-height: 179px;
+      padding: 10px 14px;
+      min-height: 0;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: flex-start;
-      gap: 10px;
+      gap: 6px;
       box-sizing: border-box;
     }
     .prog--tint { background: #182747; }
@@ -775,10 +745,12 @@
       .brand__menu { pointer-events: none; }
 
       .hero__row {
-        grid-template-columns: 484fr 680fr;
+        grid-template-columns: 485px 1fr;
         align-items: stretch;
       }
       .hero__visual {
+        width: 485px;
+        max-width: 485px;
         aspect-ratio: auto;
         height: 616px;
       }
@@ -897,6 +869,7 @@
         margin-bottom: var(--space-gap);
         padding-bottom: 8px;
         scrollbar-width: none;
+        -ms-overflow-style: none;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-x pan-y;
       }
@@ -907,8 +880,6 @@
         scroll-snap-align: start;
       }
       .aud-card--offset { margin-top: 0; }
-      .aud-dots,
-      .review-dots { display: flex; }
       .results__cards {
         display: flex;
         overflow-x: auto;
@@ -916,6 +887,7 @@
         gap: var(--space-gap);
         padding-bottom: 8px;
         scrollbar-width: none;
+        -ms-overflow-style: none;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-x pan-y;
       }
@@ -932,12 +904,24 @@
       }
       .path-card__img {
         width: 100%;
-        height: auto;
-        aspect-ratio: 16 / 10;
+        height: 140px;
+        max-height: 140px;
+        aspect-ratio: auto;
       }
-      .path-card__body { padding: 14px var(--space-card) 4px; }
+      .path-card__body { padding: 12px 14px 10px; }
+      .path-card h3 { font-size: 16px; line-height: 1.2; }
+      .path-card p { font-size: 13px; line-height: 1.4; }
+      .path-card__meta { font-size: 10px; }
       .program-grid { grid-template-columns: 1fr; }
-      .prog--photo { width: 100%; max-width: none; }
+      .prog {
+        min-height: 0;
+        height: auto;
+        padding: 10px 14px;
+        gap: 6px;
+        justify-content: flex-start;
+      }
+      .prog--tint { min-height: 0; padding: 10px 14px; }
+      .prog--photo { width: 100%; max-width: none; min-height: 0; }
       .prog--photo img { width: 100%; height: 100%; }
       .format { grid-template-columns: 1fr; gap: var(--space-gap); }
       .format-mosaic { aspect-ratio: 3 / 2; }
@@ -997,14 +981,21 @@
       align-items: stretch;
     }
     .format-mosaic {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2px;
       width: 100%;
+      max-width: 100%;
       aspect-ratio: 1;
       overflow: hidden;
       background: #222;
     }
     .format-mosaic img {
+      position: relative !important;
+      inset: auto !important;
       width: 100%;
       height: 100%;
+      aspect-ratio: 1;
       object-fit: cover;
     }
     .format-panel {
@@ -1085,12 +1076,19 @@
     }
     @media (min-width: 960px) {
       .format {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 573px 573px;
         gap: 20px;
-        min-height: 560px;
+        min-height: 573px;
+        justify-content: start;
+      }
+      .format-mosaic {
+        width: 573px;
+        height: 573px;
+        aspect-ratio: 1;
       }
       .format-panel {
-        min-height: 560px;
+        width: 573px;
+        min-height: 573px;
         padding: 28px 44px;
       }
       .format-features { gap: 32px 40px; }
@@ -1382,36 +1380,6 @@
       flex: 1;
       white-space: nowrap;
     }
-    .skill-nav {
-      display: flex;
-      gap: 8px;
-      flex-shrink: 0;
-      padding-top: 4px;
-    }
-    .skill-nav button {
-      width: 36px;
-      height: 36px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(255, 255, 255, 0.55);
-      color: #fff;
-      transition: background 0.2s var(--ease), color 0.2s var(--ease);
-    }
-    .skill-nav button:hover {
-      background: #fff;
-      color: #111;
-    }
-    .skill-nav button:disabled {
-      opacity: 0.35;
-      pointer-events: none;
-    }
-    .skill-nav svg {
-      width: 14px;
-      height: 14px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.6;
-    }
     .skill-track {
       display: flex;
       gap: 14px;
@@ -1422,7 +1390,9 @@
       margin-right: calc(50% - 50vw);
       padding-right: var(--pad);
       scrollbar-width: none;
+      -ms-overflow-style: none;
       -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y;
     }
     .skill-track::-webkit-scrollbar { display: none; }
     .skill-card {
@@ -1503,8 +1473,10 @@
       overflow: hidden;
       background: #222;
       width: 100%;
-      aspect-ratio: 3 / 4;
-      max-height: 560px;
+      max-width: 340px;
+      aspect-ratio: 340 / 453;
+      height: auto;
+      max-height: none;
     }
     .speaker__main img {
       width: 100%;
@@ -1572,21 +1544,25 @@
     }
     @media (min-width: 960px) {
       .speaker {
-        grid-template-columns: minmax(220px, 340px) minmax(0, 1fr);
+        grid-template-columns: 340px minmax(0, 1fr);
         column-gap: 40px;
-        align-items: stretch;
+        align-items: start;
       }
       .speaker__main {
-        max-height: none;
-        height: auto;
-        min-height: 100%;
-        aspect-ratio: auto;
-        align-self: stretch;
+        width: 340px;
+        height: 453px;
+        max-width: 340px;
+        min-height: 453px;
+        max-height: 453px;
+        aspect-ratio: 340 / 453;
+        align-self: start;
       }
       .speaker__side {
         gap: 20px;
         padding-top: 0;
         width: 100%;
+        max-width: 786px;
+        min-height: 453px;
         justify-content: center;
       }
       .speaker__name {
@@ -1965,6 +1941,70 @@
       }
       .skill-track { scroll-behavior: auto; }
     }
+
+    .aud-dots, .review-dots, .snap-dot, .skill-nav,
+    [class*="pager"], [class*="bullet"], [data-dots] {
+      display: none !important;
+      height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      border: 0 !important;
+    }
+
+    @media (max-width: 959px) {
+      #format, #skill, #speaker, #results, #page-root { overflow-x: clip; }
+      .format { grid-template-columns: 1fr !important; width: 100%; max-width: 100%; }
+      .format-mosaic {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 1;
+      }
+      .format-panel {
+        width: 100% !important;
+        min-height: 0 !important;
+        padding: 16px 0 0 !important;
+      }
+      .format-panel__corners { display: none !important; }
+      .format-features {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+      }
+      .format-feature { padding: 10px 0; }
+      .format-feature h3, .format-feature p {
+        white-space: normal;
+        overflow: visible;
+        max-width: none !important;
+      }
+      .skill-head .section-title { white-space: normal; }
+      .skill-track { margin-right: 0; }
+      .skill-card {
+        flex: 0 0 calc(100% - var(--peek));
+        grid-template-columns: 1fr !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+      }
+      .skill-card__img { width: 100%; height: 140px !important; }
+      .skill-card__body {
+        height: auto !important;
+        overflow: visible !important;
+        border-left: 1px solid rgba(255,255,255,0.35);
+        padding: 12px 14px;
+      }
+      .skill-card__body p { max-width: none; }
+      .skill-card__num { position: static; margin-top: 8px; }
+      #speaker { padding: 40px 0 24px !important; }
+      .speaker { grid-template-columns: 1fr !important; }
+      .speaker__side { min-height: 0 !important; }
+      .speaker__quote { font-size: 16px !important; line-height: 1.25 !important; }
+      .speaker__quote-box { padding: 14px 16px !important; }
+      .speaker__quote cite { margin-top: 8px !important; }
+      #results { padding-top: 8px !important; }
+      .path-card h3 { font-size: 16px !important; }
+      .prog, .prog--tint { padding: 10px 14px !important; min-height: 0 !important; }
+    }
   </style>
 </head>
 <body>
@@ -2037,7 +2077,6 @@
           </div>
         </article>
       </div>
-      <div class="aud-dots" id="audDots" aria-hidden="true"></div>
     </div>
   </section>
 
@@ -2213,7 +2252,15 @@
   <section class="section" id="format" aria-labelledby="format-title">
     <div class="wrap format">
       <div class="format-mosaic" aria-hidden="true">
-        <img src="assets/format/mosaic.webp" alt="" loading="lazy" />
+        <img src="assets/format/g1.webp" alt="" loading="lazy" />
+        <img src="assets/format/g2.webp" alt="" loading="lazy" />
+        <img src="assets/format/g3.webp" alt="" loading="lazy" />
+        <img src="assets/format/g4.webp" alt="" loading="lazy" />
+        <img src="assets/format/g5.webp" alt="" loading="lazy" />
+        <img src="assets/format/g6.webp" alt="" loading="lazy" />
+        <img src="assets/format/g7.webp" alt="" loading="lazy" />
+        <img src="assets/format/g8.webp" alt="" loading="lazy" />
+        <img src="assets/format/g9.webp" alt="" loading="lazy" />
       </div>
       <div class="format-panel">
         <div class="format-panel__corners" aria-hidden="true">
@@ -2252,14 +2299,6 @@
     <div class="wrap">
       <div class="skill-head">
         <h2 class="section-title" id="skill-title" data-reveal>Навык, который ты заберёшь с собой в любую профессию</h2>
-        <div class="skill-nav">
-          <button type="button" id="skillPrev" aria-label="Назад">
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg>
-          </button>
-          <button type="button" id="skillNext" aria-label="Вперёд">
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
-          </button>
-        </div>
       </div>
     </div>
     <div class="wrap">
@@ -2479,7 +2518,6 @@
           <p class="review-card__text">Делал ролики ради фана → после курса собрал готовое портфолио и уверенно берёт заказы</p>
         </article>
       </div>
-      <div class="review-dots" id="reviewDots" aria-hidden="true"></div>
     </div>
   </section>
 
@@ -2588,26 +2626,15 @@
       }
 
       function applyTildaScale() {
-        var scale = tildaScale();
         var html = document.documentElement;
-        if (!root) return scale;
-        if (scale === 1) {
-          html.classList.remove("bi13-tilda-scale");
-          html.style.removeProperty("--zoom");
-          root.style.removeProperty("width");
-          root.style.removeProperty("max-width");
-          root.style.removeProperty("zoom");
-          document.body.style.removeProperty("height");
-          return 1;
-        }
-        html.classList.add("bi13-tilda-scale");
-        html.style.setProperty("--zoom", String(scale));
-        root.style.width = DESIGN_W + "px";
-        root.style.maxWidth = DESIGN_W + "px";
-        root.style.zoom = String(scale);
-        var visualH = Math.ceil(root.getBoundingClientRect().height || root.offsetHeight * scale);
-        document.body.style.height = visualH + "px";
-        return scale;
+        if (!root) return 1;
+        html.classList.remove("bi13-tilda-scale");
+        html.style.removeProperty("--zoom");
+        root.style.removeProperty("width");
+        root.style.removeProperty("max-width");
+        root.style.removeProperty("zoom");
+        document.body.style.removeProperty("height");
+        return 1;
       }
 
       function measure() {
@@ -2769,62 +2796,6 @@
         });
       });
 
-      var track = document.getElementById("skillTrack");
-      var prev = document.getElementById("skillPrev");
-      var next = document.getElementById("skillNext");
-      function step() {
-        var card = track && track.querySelector(".skill-card");
-        return card ? card.getBoundingClientRect().width + 14 : 280;
-      }
-      function syncNav() {
-        if (!track || !prev || !next) return;
-        var max = track.scrollWidth - track.clientWidth - 2;
-        prev.disabled = track.scrollLeft <= 2;
-        next.disabled = track.scrollLeft >= max;
-      }
-      if (prev) prev.addEventListener("click", function () {
-        if (track) track.scrollBy({ left: -step(), behavior: "smooth" });
-      });
-      if (next) next.addEventListener("click", function () {
-        if (track) track.scrollBy({ left: step(), behavior: "smooth" });
-      });
-      if (track) track.addEventListener("scroll", syncNav, { passive: true });
-
-      function bootSnapDots(trackEl, dotsHost) {
-        if (!trackEl || !dotsHost) return;
-        var slides = Array.prototype.slice.call(trackEl.children).filter(function (el) {
-          return el.nodeType === 1;
-        });
-        if (slides.length < 2) return;
-        dotsHost.innerHTML = "";
-        var dots = slides.map(function (_, i) {
-          var b = document.createElement("button");
-          b.type = "button";
-          b.className = "snap-dot";
-          b.setAttribute("aria-label", "Слайд " + (i + 1));
-          b.addEventListener("click", function () {
-            slides[i].scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
-          });
-          dotsHost.appendChild(b);
-          return b;
-        });
-        function syncDots() {
-          var left = trackEl.scrollLeft;
-          var i = 0;
-          var best = Infinity;
-          slides.forEach(function (el, idx) {
-            var d = Math.abs(el.offsetLeft - left);
-            if (d < best) { best = d; i = idx; }
-          });
-          dots.forEach(function (d, idx) { d.classList.toggle("is-on", idx === i); });
-        }
-        trackEl.addEventListener("scroll", function () {
-          syncDots();
-          scheduleHeight();
-        }, { passive: true });
-        syncDots();
-      }
-
       function bootFaq() {
         var items = Array.prototype.slice.call(document.querySelectorAll(".faq-item"));
         var ease = "height 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease";
@@ -2892,7 +2863,7 @@
             if (!isFinite(x) || !isFinite(y)) return;
             var el = document.elementFromPoint(x, y);
             if (!el) return;
-            var target = el.closest("a, button, [role='tab'], .snap-dot, .faq-item__q");
+            var target = el.closest("a, button, [role='tab'], .faq-item__q");
             if (target && typeof target.click === "function") target.click();
             return;
           }
@@ -2936,7 +2907,6 @@
         window.addEventListener("resize", function () {
           lastHeight = 0;
           scheduleHeight();
-          syncNav();
         });
         if (window.visualViewport) {
           window.visualViewport.addEventListener("resize", function () {
@@ -2957,10 +2927,11 @@
         applyLinkTargets();
         bootReveal();
         bootFaq();
-        bootSnapDots(document.getElementById("audTrack"), document.getElementById("audDots"));
-        bootSnapDots(document.getElementById("reviewTrack"), document.getElementById("reviewDots"));
+        ["audTrack", "reviewTrack", "skillTrack"].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) el.addEventListener("scroll", scheduleHeight, { passive: true });
+        });
         applyTildaScale();
-        syncNav();
         scheduleHeight();
       }
 
