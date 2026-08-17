@@ -2718,6 +2718,7 @@
       var WIDTH_TYPE = "bi13-highlevel-width";
       var CLICK_TYPE = "bi13-highlevel-click";
       var HSCROLL_TYPE = "bi13-hscroll";
+      var HRECTS_TYPE = "bi13-hrects";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
       var inIframe = window.parent && window.parent !== window;
@@ -2764,14 +2765,31 @@
         return h > 0 ? Math.ceil(h) : 0;
       }
 
+      function postHRects() {
+        if (!inIframe) return;
+        var nodes = document.querySelectorAll("[data-hscroll]");
+        var rects = [];
+        for (var i = 0; i < nodes.length; i++) {
+          var r = nodes[i].getBoundingClientRect();
+          rects.push({
+            top: r.top,
+            left: r.left,
+            width: r.width,
+            height: r.height
+          });
+        }
+        postToParent({ type: HRECTS_TYPE, rects: rects });
+      }
+
       function sendHeight() {
         heightRaf = 0;
         if (!inIframe) return;
         var height = measure();
-        if (!height || height < 100) return;
-        if (Math.abs(height - lastHeight) < 2) return;
-        lastHeight = height;
-        postToParent({ type: RESIZE_TYPE, height: height });
+        if (height && height >= 100 && Math.abs(height - lastHeight) >= 2) {
+          lastHeight = height;
+          postToParent({ type: RESIZE_TYPE, height: height });
+        }
+        postHRects();
       }
 
       function scheduleHeight() {
@@ -2963,41 +2981,9 @@
         });
       }
 
-      function pageZoom() {
-        var html = document.documentElement;
-        var style = window.getComputedStyle(html);
-        var zoom = parseFloat(style.zoom);
-        if (!isFinite(zoom) || zoom <= 0) {
-          zoom = parseFloat(String(style.getPropertyValue("--zoom") || "").trim());
-        }
-        if (!isFinite(zoom) || zoom <= 0) zoom = 1;
-        var layout = html.clientWidth || window.innerWidth || 0;
-        if (parentWidth > 0 && layout > 0) {
-          var inferred = parentWidth / layout;
-          if (isFinite(inferred) && inferred > 0 && Math.abs(inferred - 1) > 0.02) {
-            zoom = inferred;
-          }
-        }
-        return zoom;
-      }
-
-      function rectContains(r, px, py) {
-        return px >= r.left && px <= r.right && py >= r.top && py <= r.bottom;
-      }
-
-      function trackFromPoint(x, y) {
-        var zoom = pageZoom();
-        var ix = x / zoom;
-        var iy = y / zoom;
-        var el = document.elementFromPoint(ix, iy) || document.elementFromPoint(x, y);
-        var track = el && el.closest ? el.closest("[data-hscroll]") : null;
-        if (track) return track;
-        var nodes = document.querySelectorAll("[data-hscroll]");
-        for (var i = 0; i < nodes.length; i++) {
-          var r = nodes[i].getBoundingClientRect();
-          if (rectContains(r, x, y) || rectContains(r, ix, iy)) return nodes[i];
-        }
-        return null;
+      function cssZoom() {
+        var zoom = parseFloat(window.getComputedStyle(document.documentElement).zoom);
+        return zoom && isFinite(zoom) ? zoom : 1;
       }
 
       function bootParentClicks() {
@@ -3006,22 +2992,20 @@
           var data = event.data;
           if (!data || typeof data !== "object") return;
           if (data.type === HSCROLL_TYPE) {
-            var hx = Number(data.x);
-            var hy = Number(data.y);
+            var i = Number(data.i);
             var dx = Number(data.dx);
-            if (!isFinite(hx) || !isFinite(hy) || !isFinite(dx) || !dx) return;
-            var zoom = pageZoom();
-            var track = trackFromPoint(hx, hy);
-            if (!track) return;
-            track.scrollLeft += dx / zoom;
+            if (!isFinite(i) || i < 0 || !isFinite(dx) || !dx) return;
+            var rows = document.querySelectorAll("[data-hscroll]");
+            var row = rows[i];
+            if (!row) return;
+            row.scrollLeft += dx / cssZoom();
             return;
           }
           if (data.type !== CLICK_TYPE) return;
           var x = Number(data.x);
           var y = Number(data.y);
           if (!isFinite(x) || !isFinite(y)) return;
-          var z = pageZoom();
-          var el = document.elementFromPoint(x / z, y / z) || document.elementFromPoint(x, y);
+          var el = document.elementFromPoint(x, y);
           if (!el) return;
           var target = el.closest("a, button, [data-tab], [role='button']");
           if (!target || typeof target.click !== "function") return;
@@ -3046,6 +3030,7 @@
           }
           if (data.type === VIEWPORT_TYPE) {
             revealByParentViewport(data.top, data.height);
+            postHRects();
             return;
           }
           if (data.type === PING_TYPE) {
