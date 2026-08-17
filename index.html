@@ -6,7 +6,7 @@
   <title>BI13 · мобильная съёмка</title>
   <meta name="description" content="Школа визуального мышления BI13. Мобильная съёмка: два уровня, один маршрут." />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- bi13 cache: 20260817-29 -->
+  <!-- bi13 cache: 20260817-25 -->
   <style>
     @font-face {
       font-family: Manrope;
@@ -2723,7 +2723,8 @@
       var SCROLL_TYPE = "bi13-scroll";
       var VIEWPORT_TYPE = "bi13-highlevel-viewport";
       var WIDTH_TYPE = "bi13-highlevel-width";
-      var PARENT_SCROLL_TYPE = "bi13-parent-scroll";
+      var CLICK_TYPE = "bi13-highlevel-click";
+      var HRECTS_TYPE = "bi13-hrects";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
       var inIframe = window.parent && window.parent !== window;
@@ -2770,6 +2771,25 @@
         return h > 0 ? Math.ceil(h) : 0;
       }
 
+      function postHRects() {
+        if (!inIframe) return;
+        var nodes = document.querySelectorAll("[data-hscroll]");
+        var rects = [];
+        for (var i = 0; i < nodes.length; i++) {
+          var node = nodes[i];
+          if (node.scrollWidth <= node.clientWidth + 1) continue;
+          var r = node.getBoundingClientRect();
+          rects.push({
+            i: i,
+            top: r.top,
+            left: r.left,
+            width: r.width,
+            height: r.height
+          });
+        }
+        postToParent({ type: HRECTS_TYPE, rects: rects });
+      }
+
       function sendHeight() {
         heightRaf = 0;
         if (!inIframe) return;
@@ -2778,6 +2798,7 @@
           lastHeight = height;
           postToParent({ type: RESIZE_TYPE, height: height });
         }
+        postHRects();
       }
 
       function scheduleHeight() {
@@ -2970,56 +2991,26 @@
         });
       }
 
-      function bootParentScroll() {
+      function bootParentClicks() {
         if (!inIframe) return;
-        var tracking = false;
-        var startX = 0;
-        var startY = 0;
-        var lastY = 0;
-        var onHscroll = false;
-        var locked = null;
-
-        document.addEventListener("touchstart", function (event) {
-          if (!event.touches[0]) return;
-          tracking = true;
-          startX = event.touches[0].clientX;
-          startY = lastY = event.touches[0].clientY;
-          onHscroll = !!event.target.closest("[data-hscroll]");
-          locked = null;
-        }, { passive: true });
-
-        document.addEventListener("touchmove", function (event) {
-          if (!tracking || !event.touches[0]) return;
-          var x = event.touches[0].clientX;
-          var y = event.touches[0].clientY;
-          var dx = x - startX;
-          var dyTotal = y - startY;
-          if (!locked && (Math.abs(dx) > 8 || Math.abs(dyTotal) > 8)) {
-            locked = Math.abs(dx) >= Math.abs(dyTotal) ? "h" : "v";
-          }
-          if (onHscroll && locked === "h") return;
-          var step = lastY - y;
-          lastY = y;
-          if (step) postToParent({ type: PARENT_SCROLL_TYPE, dy: step });
-        }, { passive: true });
-
-        document.addEventListener("touchend", function () {
-          tracking = false;
-          locked = null;
-        }, { passive: true });
-        document.addEventListener("touchcancel", function () {
-          tracking = false;
-          locked = null;
-        }, { passive: true });
-
-        document.addEventListener("wheel", function (event) {
-          postToParent({ type: PARENT_SCROLL_TYPE, dy: event.deltaY });
-        }, { passive: true });
+        window.addEventListener("message", function (event) {
+          var data = event.data;
+          if (!data || typeof data !== "object") return;
+          if (data.type !== CLICK_TYPE) return;
+          var x = Number(data.x);
+          var y = Number(data.y);
+          if (!isFinite(x) || !isFinite(y)) return;
+          var el = document.elementFromPoint(x, y);
+          if (!el) return;
+          var target = el.closest("a, button, [data-tab], [role='button']");
+          if (!target || typeof target.click !== "function") return;
+          target.click();
+        });
       }
 
       function boot() {
         if (inIframe) document.documentElement.classList.add("bi13-embedded");
-        bootParentScroll();
+        bootParentClicks();
         window.addEventListener("message", function (event) {
           var data = event.data;
           if (!data || typeof data !== "object") return;
@@ -3034,6 +3025,7 @@
           }
           if (data.type === VIEWPORT_TYPE) {
             revealByParentViewport(data.top, data.height);
+            postHRects();
             return;
           }
           if (data.type === PING_TYPE) {
@@ -3067,6 +3059,7 @@
         bootFaq();
         document.querySelectorAll("[data-hscroll]").forEach(function (el) {
           el.addEventListener("scroll", function () {
+            postHRects();
             scheduleHeight();
           }, { passive: true });
         });

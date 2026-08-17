@@ -1,22 +1,25 @@
 <!--
   Вставьте этот код в блок «HTML-код» (T123) на Тильде.
-  Страница: https://elenasamanchuk.github.io/bi13-highlevel/
+  Страница:
+  https://elenasamanchuk.github.io/bi13-highlevel/
 
-  Без щита: iframe работает как на GitHub Pages (нативные карусели и клики).
-  Вертикальный скролл страницы — проброс из iframe (мобилка + колёсико).
-
+  Вертикаль — нативный скролл Тильды (щит). Горизонталь каруселей — «дыра в щите».
   После обновления заново вставьте код и опубликуйте страницу.
 -->
-<div id="bi13-highlevel-wrap" style="width:100%;line-height:0;background:#161616;overflow-x:clip;-webkit-tap-highlight-color:transparent;">
+<div id="bi13-highlevel-wrap" style="position:relative;width:100%;line-height:0;background:#161616;overflow-x:clip;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;">
   <iframe
     id="bi13-highlevel-frame"
-    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-29"
+    src="https://elenasamanchuk.github.io/bi13-highlevel/?v=20260817-25"
     title="BI13 — мобильная съёмка"
     loading="eager"
     scrolling="no"
     tabindex="-1"
-    style="width:100%;border:none;display:block;min-height:600px;overflow:hidden;background:#161616;-webkit-tap-highlight-color:transparent;outline:none;"
+    style="width:100%;border:none;display:block;min-height:600px;overflow:hidden;background:#161616;pointer-events:none;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;user-select:none;"
   ></iframe>
+  <div
+    id="bi13-highlevel-shield"
+    style="position:absolute;left:0;top:0;right:0;bottom:0;z-index:2;touch-action:pan-y;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;"
+  ></div>
 </div>
 <script>
 (function () {
@@ -25,13 +28,21 @@
   var SCROLL_TYPE = 'bi13-scroll';
   var VIEWPORT_TYPE = 'bi13-highlevel-viewport';
   var WIDTH_TYPE = 'bi13-highlevel-width';
-  var PARENT_SCROLL_TYPE = 'bi13-parent-scroll';
+  var CLICK_TYPE = 'bi13-highlevel-click';
+  var HRECTS_TYPE = 'bi13-hrects';
 
   var wrap = document.getElementById('bi13-highlevel-wrap');
   var iframe = document.getElementById('bi13-highlevel-frame');
-  if (!iframe || !wrap) return;
+  var shield = document.getElementById('bi13-highlevel-shield');
+  if (!iframe || !wrap || !shield) return;
 
   var viewportTimer = 0;
+  var hrects = [];
+  var rowIndex = -1;
+  var holeOpen = false;
+  var hDragged = false;
+  var gestureStartX = 0;
+  var gestureStartY = 0;
 
   iframe.setAttribute('tabindex', '-1');
   iframe.addEventListener('focus', function (event) {
@@ -93,6 +104,96 @@
     } catch (e) {}
   }
 
+  function iframePoint(clientX, clientY) {
+    var rect = iframe.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  }
+
+  function hitRow(clientX, clientY) {
+    var pt = iframePoint(clientX, clientY);
+    if (!pt) return -1;
+    for (var j = 0; j < hrects.length; j++) {
+      var r = hrects[j];
+      if (
+        pt.x >= r.left && pt.x <= r.left + r.width &&
+        pt.y >= r.top && pt.y <= r.top + r.height
+      ) {
+        return r.i != null ? r.i : j;
+      }
+    }
+    return -1;
+  }
+
+  function resetPointer() {
+    rowIndex = -1;
+    hDragged = false;
+  }
+
+  function openHole() {
+    if (holeOpen) return;
+    holeOpen = true;
+    shield.style.pointerEvents = 'none';
+    iframe.style.pointerEvents = 'auto';
+  }
+
+  function closeHole() {
+    if (!holeOpen) return;
+    holeOpen = false;
+    shield.style.pointerEvents = '';
+    iframe.style.pointerEvents = 'none';
+  }
+
+  function forwardClick(clientX, clientY) {
+    var pt = iframePoint(clientX, clientY);
+    if (!pt) return;
+    try {
+      iframe.contentWindow.postMessage({ type: CLICK_TYPE, x: pt.x, y: pt.y }, '*');
+    } catch (e) {}
+  }
+
+  shield.addEventListener('pointerdown', function (event) {
+    hDragged = false;
+    gestureStartX = event.clientX;
+    gestureStartY = event.clientY;
+    rowIndex = hitRow(event.clientX, event.clientY);
+    if (rowIndex >= 0) {
+      openHole();
+    }
+  }, { passive: true });
+
+  window.addEventListener('pointermove', function (event) {
+    if (!holeOpen) return;
+    if (Math.abs(event.clientX - gestureStartX) > 8 || Math.abs(event.clientY - gestureStartY) > 8) {
+      hDragged = true;
+    }
+  }, { passive: true });
+
+  function onGestureEnd(event) {
+    if (holeOpen) {
+      if (rowIndex >= 0 && !hDragged) {
+        var x = event && isFinite(event.clientX) ? event.clientX : gestureStartX;
+        var y = event && isFinite(event.clientY) ? event.clientY : gestureStartY;
+        forwardClick(x, y);
+      }
+      closeHole();
+    }
+    resetPointer();
+  }
+
+  window.addEventListener('pointerup', onGestureEnd, { passive: true });
+  window.addEventListener('pointercancel', onGestureEnd, { passive: true });
+  window.addEventListener('pointerleave', onGestureEnd, { passive: true });
+
+  shield.addEventListener('click', function (event) {
+    if (holeOpen || rowIndex >= 0) return;
+    event.preventDefault();
+    forwardClick(event.clientX, event.clientY);
+  });
+
   window.addEventListener('message', function (event) {
     var data = event.data;
     if (!data || typeof data !== 'object') return;
@@ -101,9 +202,8 @@
       sendViewport();
       return;
     }
-    if (data.type === PARENT_SCROLL_TYPE) {
-      var dy = Number(data.dy);
-      if (dy) window.scrollBy(0, dy);
+    if (data.type === HRECTS_TYPE && data.rects) {
+      hrects = data.rects;
       return;
     }
     if (data.type === SCROLL_TYPE || data.type === 'bi13-highlevel-scroll') {
