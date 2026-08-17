@@ -2713,7 +2713,7 @@
     (function () {
       var RESIZE_TYPE = "bi13-highlevel-resize";
       var PING_TYPE = "bi13-highlevel-ping";
-      var SCROLL_TYPE = "bi13-highlevel-scroll";
+      var SCROLL_TYPE = "bi13-scroll";
       var VIEWPORT_TYPE = "bi13-highlevel-viewport";
       var WIDTH_TYPE = "bi13-highlevel-width";
       var CLICK_TYPE = "bi13-highlevel-click";
@@ -2800,8 +2800,9 @@
       function scrollToId(id) {
         var el = document.getElementById(id);
         if (!el) return;
+        var reduced = prefersReducedMotion();
         if (!inIframe) {
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
+          el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
           return;
         }
         postToParent({
@@ -2811,9 +2812,9 @@
       }
 
       document.addEventListener("click", function (event) {
-        var link = event.target.closest('a[href^="#"]');
+        var link = event.target.closest('a[href^="#"], [data-scroll-to]');
         if (!link) return;
-        var id = (link.getAttribute("href") || "").slice(1);
+        var id = link.getAttribute("data-scroll-to") || (link.getAttribute("href") || "").replace(/^#/, "");
         if (!id) return;
         event.preventDefault();
         scrollToId(id);
