@@ -1506,6 +1506,40 @@
       }
     }
 
+    /* ===== ТАЙМЕР ПРОДАЖ (sales-state.js): before / open / after ===== */
+    #page-root:not([data-sales]) [data-when]:not([data-when~="before"]),
+    #page-root[data-sales="before"] [data-when]:not([data-when~="before"]),
+    #page-root[data-sales="open"] [data-when]:not([data-when~="open"]),
+    #page-root[data-sales="after"] [data-when]:not([data-when~="after"]) {
+      display: none !important;
+    }
+    .pricing-open {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pricing-open__badge {
+      display: inline-flex;
+      align-items: center;
+      height: 30px;
+      padding: 1px 15px;
+      background: rgba(0, 102, 255, 0.21);
+      border: 1px solid #06f;
+      font-size: var(--text-caption);
+      line-height: var(--lh-tight);
+      color: #fff;
+      white-space: nowrap;
+    }
+    .pricing-open__text {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.45;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
     /* ===== PRESALE / ПРОДАЖИ ЗАКРЫТЫ =====
        Плашка вместо тарифов: язык hero-badge (синяя рамка + угловые точки)
        плюс угловые скобки как в format-panel */
@@ -2421,14 +2455,15 @@
       <div class="hero__copy">
         <div class="hero-badge" data-reveal style="--reveal-delay: 80ms">
           <i aria-hidden="true"></i>
-          [ старт продаж 16&nbsp;ноября ]
+          <span data-when="before">[ старт продаж 16&nbsp;ноября ]</span><span data-when="open">[ продажи открыты до&nbsp;30&nbsp;ноября ]</span><span data-when="after">[ продажи закрыты ]</span>
         </div>
         <div class="hero__center">
           <h1 data-reveal style="--reveal-delay: 140ms"><span class="hero__h1-line">Мобильная съёмка:</span><span class="hero__h1-line">два уровня, один маршрут</span></h1>
           <p class="hero__sub" data-reveal style="--reveal-delay: 200ms">Школа визуального мышления BI13</p>
           <p class="hero__lead" data-reveal style="--reveal-delay: 260ms">Контент — это язык современного мира<br />Ты не&nbsp;учишься снимать, ты учишься замечать</p>
         </div>
-        <a class="hero__cta" href="tg://resolve?domain=BI13PROBOT" data-reveal style="--reveal-delay: 320ms">Предзапись</a>
+        <a class="hero__cta" href="tg://resolve?domain=BI13PROBOT" data-when="before after" data-reveal style="--reveal-delay: 320ms">Предзапись</a>
+        <a class="hero__cta" href="#pricing" data-when="open" data-reveal style="--reveal-delay: 320ms">Выбрать тариф</a>
       </div>
     </div>
   </section>
@@ -2694,7 +2729,8 @@
             <p>После High Level — ещё 14&nbsp;дней для пересдачи и&nbsp;вопросов</p>
           </article>
         </div>
-        <a class="format-panel__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
+        <a class="format-panel__cta" href="tg://resolve?domain=BI13PROBOT" data-when="before after">Предзапись</a>
+        <a class="format-panel__cta" href="#pricing" data-when="open">Выбрать тариф</a>
       </div>
     </div>
   </section>
@@ -2753,19 +2789,25 @@
 
   <section class="section" id="pricing">
     <div class="wrap">
-      <div class="presale" data-reveal>
+      <div class="presale" data-when="before after" data-reveal>
         <i aria-hidden="true"></i>
         <figure class="presale__media" aria-hidden="true">
           <img src="assets/final/img-tr.webp" alt="" loading="lazy" />
         </figure>
         <div class="presale__copy">
           <p class="presale__badge">[ продажи закрыты ]</p>
-          <h2 class="presale__title">Старт продаж — <em>16&nbsp;ноября</em></h2>
+          <h2 class="presale__title" data-when="before">Старт продаж — <em>16&nbsp;ноября</em></h2>
+          <h2 class="presale__title" data-when="after">Поток уже идёт. <em>Запишись на&nbsp;следующий</em></h2>
         </div>
         <a class="presale__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
       </div>
 
-      <!-- ТАРИФЫ СКРЫТЫ ДО 16 НОЯБРЯ. Вернуть: раскомментировать блок ниже и удалить .presale выше.
+      <div class="pricing-open" data-when="open" data-reveal>
+        <p class="pricing-open__badge">[ продажи открыты до&nbsp;30&nbsp;ноября, 23:59&nbsp;мск ]</p>
+        <p class="pricing-open__text">Старт потока 30&nbsp;ноября. На&nbsp;тарифах с&nbsp;обратной связью 60&nbsp;мест</p>
+      </div>
+
+      <div data-when="open">
       <div class="pricing-group" data-reveal>
         <div class="pricing-group__head">
           <p class="pricing-group__title">Весь путь: Aesthetic + High Level</p>
@@ -2782,7 +2824,7 @@
                 <p class="tariff__price-save">экономия 4 990&nbsp;₽</p>
                 <p class="tariff__price-note">картой сразу или в&nbsp;рассрочку</p>
               </div>
-              <a class="tariff__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
+              <a class="tariff__cta" href="https://bi13pro.ru/payment-allway" data-pay>Выбрать</a>
             </div>
             <div class="tariff__incl">
               <p class="tariff__incl-label">Входит</p>
@@ -2804,7 +2846,7 @@
                 <p class="tariff__price-save">экономия 9 990&nbsp;₽</p>
                 <p class="tariff__price-note">картой сразу или в&nbsp;рассрочку</p>
               </div>
-              <a class="tariff__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
+              <a class="tariff__cta" href="https://bi13pro.ru/payment-allway-oc" data-pay>Выбрать</a>
             </div>
             <div class="tariff__incl">
               <p class="tariff__incl-label">Дополнительно к&nbsp;тарифу без обратной связи</p>
@@ -2834,7 +2876,7 @@
                 <div class="tariff__price">14 990&nbsp;₽</div>
                 <p class="tariff__price-note">картой сразу или в&nbsp;рассрочку</p>
               </div>
-              <a class="tariff__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
+              <a class="tariff__cta" href="https://bi13pro.ru/payment-method" data-pay>Выбрать</a>
             </div>
           </article>
 
@@ -2847,12 +2889,12 @@
                 <div class="tariff__price">24 990&nbsp;₽</div>
                 <p class="tariff__price-note">картой сразу или в&nbsp;рассрочку</p>
               </div>
-              <a class="tariff__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
+              <a class="tariff__cta" href="https://bi13pro.ru/payment-method-oc" data-pay>Выбрать</a>
             </div>
           </article>
         </div>
       </div>
-      -->
+      </div>
     </div>
   </section>
 
@@ -2991,8 +3033,11 @@
       </div>
       <div class="final-center" data-reveal>
         <h2 id="final-title">Начни путь</h2>
-        <p>Продажи откроются 16&nbsp;ноября. Оставь предзапись</p>
-        <a class="final-center__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
+        <p data-when="before">Продажи откроются 16&nbsp;ноября. Оставь предзапись</p>
+        <p data-when="open">Продажи открыты до&nbsp;30&nbsp;ноября, 23:59&nbsp;мск. Старт потока 30&nbsp;ноября</p>
+        <p data-when="after">Продажи закрыты. Оставь предзапись на&nbsp;следующий поток</p>
+        <a class="final-center__cta" href="tg://resolve?domain=BI13PROBOT" data-when="before after">Предзапись</a>
+        <a class="final-center__cta" href="#pricing" data-when="open">Выбрать тариф</a>
       </div>
       <div class="final-rail final-rail--right" aria-hidden="true">
         <span class="final-rail__line"></span>
@@ -3441,5 +3486,6 @@
       }
     })();
   </script>
+<script src="sales-state.js"></script>
 </body>
 </html>

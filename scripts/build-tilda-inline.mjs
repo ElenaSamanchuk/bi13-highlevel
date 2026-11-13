@@ -14,6 +14,7 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const OUT_PATH = path.join(ROOT, "tilda-inline.html");
+const DESKTOP_PATH = path.join(process.env.HOME || "", "Desktop", "tilda-inline.html");
 const GITHUB_REPO = "elenasamanchuk/bi13-highlevel";
 const GITHUB_REF = process.env.BI13_GITHUB_REF || "main";
 const FROM_LOCAL = process.env.BI13_FROM_LOCAL === "1";
@@ -67,6 +68,11 @@ function extractPageRoot(html) {
 }
 
 /** Remove iframe-only rules without touching [data-hscroll] or other shared selectors. */
+/** Скрытые блоки (например тарифы вне продаж) не тащим в inline-версию. */
+function stripHtmlComments(html) {
+  return html.replace(/\n?[ \t]*<!--[\s\S]*?-->/g, "");
+}
+
 function removeIframeOnlyCss(css) {
   const blocks = [
     /\n    html\.bi13-tilda-scale \{\n[\s\S]*?\n    \}/,
@@ -326,7 +332,7 @@ function buildJs() {
       function isSameSiteHref(href) {
         if (!href) return true;
         if (href.charAt(0) === "#" || href.charAt(0) === "/" || href.charAt(0) === "?") return true;
-        if (href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0) return true;
+        if (href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0 || href.indexOf("tg:") === 0) return true;
         try {
           var url = new URL(href, window.location.href);
           var host = url.hostname.replace(/^www\\./, "");
@@ -539,11 +545,11 @@ async function build() {
 
   const indexHtml = await readIndexHtml();
   const css = transformCss(extractStyle(indexHtml));
-  const pageRoot = transformHtml(extractPageRoot(indexHtml));
-  const js = buildJs();
+  const pageRoot = transformHtml(stripHtmlComments(extractPageRoot(indexHtml)));
+  const salesJs = fs.readFileSync(path.join(ROOT, "sales-state.js"), "utf8");
+  const js = buildJs() + "\n" + salesJs;
 
-  const output = `<!-- BI13 inline T123 v${VERSION} · assets: ${BASE} -->
-<style>${css}
+  const output = `<style>${css}
 </style>
 <div id="bi13-inline-wrap">${pageRoot}</div>
 <script>${js}
@@ -551,6 +557,13 @@ async function build() {
 `;
 
   fs.writeFileSync(OUT_PATH, output, "utf8");
+
+  try {
+    fs.copyFileSync(OUT_PATH, DESKTOP_PATH);
+    console.log(`Copied to ${DESKTOP_PATH}`);
+  } catch (err) {
+    console.warn(`Could not copy to Desktop: ${err.message}`);
+  }
 
   const stats = fs.statSync(OUT_PATH);
   const sizeKb = (stats.size / 1024).toFixed(1);
