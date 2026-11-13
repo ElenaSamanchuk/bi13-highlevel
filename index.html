@@ -630,6 +630,7 @@
       overflow: hidden;
       background: #cfcfcf;
     }
+    .aud-card__img img { object-position: center top; }
     .aud-card h3 {
       font-weight: 400;
       font-size: var(--text-card);
@@ -647,7 +648,8 @@
     }
     .aud-card__row p {
       font-weight: 300;
-      max-width: 178px;
+      flex: 1 1 auto;
+      min-width: 0;
     }
     .aud-card__row span {
       font-weight: 400;
@@ -708,6 +710,7 @@
       overflow: hidden;
       flex-shrink: 0;
     }
+    .path-card__img img { object-position: center 8%; }
     .path-card__body { min-width: 0; }
     .path-card__meta {
       display: flex;
@@ -795,20 +798,16 @@
     .prog--tint { background: #182747; }
     .prog--photo {
       padding: 0;
-      width: auto;
-      height: auto;
-      min-height: 179px;
-      max-height: none;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .prog--photo {
       width: 100%;
       aspect-ratio: 285 / 179;
+      min-height: 179px;
+      overflow: hidden;
+      display: block;
     }
-    .prog--photo img { object-position: center center; }
+    .prog--photo img {
+      object-fit: cover;
+      object-position: center top;
+    }
     .prog__num {
       color: var(--blue);
       font-size: 18px;
@@ -910,6 +909,7 @@
         width: 140px;
         height: 140px;
       }
+      .path-card__img img { object-position: center 10%; }
 
       .program-grid {
         grid-template-columns: repeat(4, minmax(0, 285px));
@@ -931,16 +931,14 @@
         width: 100%;
         height: 100%;
         min-height: 179px;
-        max-height: none;
         padding: 0;
-        margin-top: 0;
-        justify-content: center;
-        align-items: center;
         align-self: stretch;
       }
       .prog.prog--photo img {
-        width: 285px;
-        height: 179px;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center top;
       }
       .prog--tint {
         padding: 16px 14px;
@@ -953,9 +951,9 @@
       .hero__copy { min-height: 0; padding: var(--space-card) var(--pad) 0; }
       .hero__center { gap: var(--space-gap); padding: var(--space-gap) 0; max-width: 100%; }
       .hero__center h1 .hero__h1-line { white-space: normal; }
-      /* hero-main.webp — коллаж 3×3; на мобилке показываем 2 верхних ряда */
+      /* hero-main.webp 2160×2700 — коллаж 3×3; на мобилке 2 верхних ряда (1800px) */
       .hero__visual {
-        aspect-ratio: 970 / 822;
+        aspect-ratio: 2160 / 1800;
       }
       .hero__visual img {
         object-position: center top;
@@ -1028,10 +1026,11 @@
       }
       .path-card__img {
         width: 100%;
-        height: 140px;
-        max-height: 140px;
+        height: 180px;
+        max-height: 180px;
         aspect-ratio: auto;
       }
+      .path-card__img img { object-position: center 8%; }
       .path-card__body { padding: 12px 14px 10px; }
       .path-card h3 { font-size: 16px; line-height: 1.2; }
       .path-card p { font-size: 13px; line-height: 1.4; }
@@ -1045,8 +1044,8 @@
         justify-content: flex-start;
       }
       .prog--tint { min-height: 0; padding: 10px 14px; }
-      .prog--photo { width: 100%; max-width: none; min-height: 0; }
-      .prog--photo img { width: 100%; height: 100%; }
+      .prog--photo { width: 100%; max-width: none; min-height: 0; aspect-ratio: 285 / 179; }
+      .prog--photo img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
       .format { grid-template-columns: 1fr; gap: var(--space-gap); }
       .format-mosaic { aspect-ratio: 3 / 2; }
       .format-mosaic img { object-position: center top; }
@@ -1058,9 +1057,6 @@
     }
 
     @media (max-width: 639px) {
-      .hero__visual {
-        aspect-ratio: 970 / 822;
-      }
       .hero__visual img { object-position: center top; }
     }
 
@@ -1083,14 +1079,13 @@
         width: calc(100% - var(--pad) * 2);
         box-sizing: border-box;
       }
-      .prog--photo { width: 100%; max-width: none; height: auto; min-height: 0; }
+      .prog--photo { width: 100%; max-width: none; height: auto; min-height: 0; aspect-ratio: 285 / 179; }
       .format { grid-template-columns: 1fr; gap: var(--space-gap); }
       .format-panel { min-height: 0; padding: var(--space-gap) 0 0; }
       .format-features { grid-template-columns: 1fr; gap: var(--space-gap); }
       .tariff--pack { padding: var(--space-section) var(--space-card) var(--space-gap); gap: var(--space-gap); }
       .tariff__cta { height: var(--btn-h); font-size: var(--text-button); padding: 0 10px; text-align: center; }
-      .tariff--mini .tariff__pay { grid-template-columns: 1fr; }
-      .tariff--mini .tariff__cta { min-width: 0; width: 100%; }
+      .tariff--mini .tariff__cta { min-width: 0; width: auto; padding: 0 12px; }
       .skill-card { flex: 0 0 calc(100% - var(--peek)); }
     }
 
@@ -1225,9 +1220,24 @@
       padding: 56px 0 80px;
       background: var(--bg);
     }
-    #pricing .section-title {
+    .pricing-group + .pricing-group {
+      margin-top: 48px;
+    }
+    .pricing-group__head {
       text-align: center;
-      margin-bottom: 40px;
+      margin-bottom: 28px;
+    }
+    .pricing-group__title {
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 1.3;
+      color: #fff;
+    }
+    .pricing-group__sub {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: rgba(255, 255, 255, 0.55);
     }
     .pricing-packs {
       display: grid;
@@ -1239,18 +1249,19 @@
       display: grid;
       gap: 28px;
       padding: 40px 28px 32px;
-      border: 1px solid var(--blue);
-      background: rgba(0, 102, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: transparent;
       min-height: 0;
     }
     .tariff--pack.tariff--featured {
+      border-color: var(--blue);
       background: rgba(0, 102, 255, 0.14);
       box-shadow: inset 0 0 0 1px rgba(0, 102, 255, 0.35);
     }
     .tariff__badge {
       position: absolute;
       top: -12px;
-      right: 18px;
+      left: 18px;
       z-index: 1;
       padding: 5px 12px;
       font-size: 11px;
@@ -1260,25 +1271,23 @@
       background: var(--blue);
       white-space: nowrap;
     }
-    .tariff__badge--light,
-    .tariff--mini .tariff__badge--light {
-      background: #fff;
-      color: #111;
-    }
     .tariff__intro {
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
     .tariff__title {
-      font-weight: 600;
+      font-weight: 500;
       font-size: var(--text-h2);
       line-height: var(--lh-h2);
       text-transform: uppercase;
       letter-spacing: 0.01em;
-      color: #fff;
+      color: rgba(255, 255, 255, 0.88);
     }
-    .tariff--featured .tariff__title { color: var(--blue); }
+    .tariff--featured .tariff__title {
+      font-weight: 600;
+      color: var(--blue);
+    }
     .tariff__desc {
       font-size: var(--text-body);
       line-height: 1.45;
@@ -1286,7 +1295,7 @@
       max-width: 46ch;
     }
     .tariff__pay {
-      background: rgba(24, 39, 71, 0.85);
+      background: rgba(255, 255, 255, 0.08);
       color: #fff;
       padding: 22px 20px;
       display: grid;
@@ -1294,25 +1303,65 @@
       grid-template-columns: 1fr;
       align-items: center;
     }
+    .tariff--featured .tariff__pay {
+      background: rgba(24, 39, 71, 0.85);
+    }
+    .tariff__price-wrap {
+      display: grid;
+      gap: 6px;
+    }
     .tariff__price {
       font-size: clamp(20px, 2.2vw, 25px);
       font-weight: 600;
       line-height: 1.15;
       color: #fff;
     }
+    .tariff__price-old {
+      font-size: 12px;
+      line-height: 1.35;
+      color: rgba(255, 255, 255, 0.45);
+    }
+    .tariff__price-old s {
+      text-decoration: line-through;
+    }
+    .tariff__price-save {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.3;
+      color: #6dff9a;
+    }
+    .tariff__price-note {
+      font-size: 12px;
+      line-height: 1.35;
+      color: rgba(255, 255, 255, 0.55);
+    }
     .tariff__cta {
       display: flex;
       align-items: center;
       justify-content: center;
       height: var(--btn-cta);
-      background: var(--blue);
-      border: 0;
-      color: #fff;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 0.85);
       font-size: var(--text-button);
       font-weight: 500;
-      transition: background 0.2s var(--ease);
+      transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease);
     }
-    .tariff__cta:hover { background: #1a75ff; }
+    .tariff__cta:hover {
+      background: #fff;
+      color: #111;
+      border-color: #fff;
+    }
+    .tariff--featured .tariff__cta {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+    .tariff--featured .tariff__cta:hover {
+      background: #1a75ff;
+      border-color: #1a75ff;
+      color: #fff;
+    }
     .tariff__incl {
       display: flex;
       flex-direction: column;
@@ -1322,6 +1371,9 @@
       font-size: 11px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.35);
+    }
+    .tariff--featured .tariff__incl-label {
       color: rgba(142, 176, 255, 0.7);
     }
     .tariff__list {
@@ -1336,7 +1388,7 @@
       padding-left: 14px;
       font-size: 13px;
       line-height: 1.4;
-      color: #8eb0ff;
+      color: rgba(255, 255, 255, 0.55);
     }
     .tariff__list li::before {
       content: "";
@@ -1345,16 +1397,15 @@
       top: 0.55em;
       width: 4px;
       height: 4px;
-      border-radius: 50%;
-      background: var(--blue);
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.35);
     }
-
-    .pricing-bridge {
-      margin: 36px 0 32px;
-      text-align: center;
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.55);
-      letter-spacing: 0.02em;
+    .tariff--featured .tariff__list li {
+      color: #8eb0ff;
+    }
+    .tariff--featured .tariff__list li::before {
+      border-radius: 2px;
+      background: var(--blue);
     }
 
     .pricing-starter {
@@ -1371,26 +1422,15 @@
       background: transparent;
       opacity: 0.92;
     }
-    .tariff--mini .tariff__badge {
-      top: -11px;
-      right: 14px;
-      padding: 4px 10px;
-      font-size: 10px;
-    }
     .tariff--mini .tariff__title {
       font-size: 16px;
       font-weight: 500;
       color: rgba(255, 255, 255, 0.88);
     }
-    .tariff--mini .tariff__desc {
-      font-size: 11px;
-      max-width: none;
-      color: rgba(255, 255, 255, 0.55);
-    }
     .tariff--mini .tariff__pay {
       background: transparent;
       padding: 0;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: auto 1fr;
       gap: 12px;
       align-items: center;
     }
@@ -1407,31 +1447,15 @@
       border: 1px solid rgba(255, 255, 255, 0.4);
       font-size: 11px;
       color: rgba(255, 255, 255, 0.85);
+      order: -1;
     }
     .tariff--mini .tariff__cta:hover {
       background: #fff;
       color: #111;
       border-color: #fff;
     }
-    .tariff--mini .tariff__incl {
-      gap: 8px;
-    }
-    .tariff--mini .tariff__incl-label {
-      color: rgba(255, 255, 255, 0.35);
-      font-size: 10px;
-    }
-    .tariff--mini .tariff__list {
-      gap: 6px;
-    }
-    .tariff--mini .tariff__list li {
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.55);
-      padding-left: 12px;
-    }
-    .tariff--mini .tariff__list li::before {
-      width: 3px;
-      height: 3px;
-      background: rgba(255, 255, 255, 0.35);
+    .tariff--mini .tariff__price-wrap {
+      text-align: left;
     }
 
     @media (min-width: 960px) {
@@ -1457,32 +1481,156 @@
         gap: 14px;
       }
       .tariff--mini {
-        grid-template-columns: 1.2fr auto;
-        grid-template-rows: auto auto;
+        grid-template-columns: 1fr auto;
         column-gap: 24px;
         row-gap: 10px;
         padding: 20px 22px;
-        align-items: start;
+        align-items: center;
       }
       .tariff--mini .tariff__intro {
         grid-column: 1;
-        grid-row: 1;
-        gap: 8px;
+        gap: 0;
       }
       .tariff--mini .tariff__pay {
         grid-column: 2;
-        grid-row: 1 / span 2;
         align-self: center;
         justify-items: end;
         grid-template-columns: 1fr;
         gap: 10px;
       }
-      .tariff--mini .tariff__incl {
-        grid-column: 1;
-        grid-row: 2;
+      .tariff--mini .tariff__cta {
+        order: 0;
       }
-      .tariff--mini .tariff__price {
+      .tariff--mini .tariff__price-wrap {
         text-align: right;
+      }
+    }
+
+    /* ===== PRESALE / ПРОДАЖИ ЗАКРЫТЫ =====
+       Плашка вместо тарифов: язык hero-badge (синяя рамка + угловые точки)
+       плюс угловые скобки как в format-panel */
+    .presale {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 0 0 16px;
+      border: 1px solid rgba(0, 102, 255, 0.55);
+      background: linear-gradient(180deg, rgba(0, 102, 255, 0.14) 0%, rgba(0, 102, 255, 0.03) 100%);
+    }
+    .presale__media {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      margin: 0;
+      overflow: hidden;
+    }
+    .presale__media img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 58%;
+    }
+    .presale__copy {
+      display: grid;
+      justify-items: center;
+      text-align: center;
+      gap: 10px;
+      padding: 16px 16px 0;
+    }
+    .presale::before,
+    .presale::after,
+    .presale i::before,
+    .presale i::after {
+      content: "";
+      position: absolute;
+      width: 2.5px;
+      height: 2.5px;
+      background: var(--blue);
+    }
+    .presale::before { left: -1px; top: -1px; }
+    .presale::after { right: -1px; top: -1px; }
+    .presale i::before { left: -1px; bottom: -1px; }
+    .presale i::after { right: -1px; bottom: -1px; }
+    .presale i { position: absolute; inset: 0; pointer-events: none; }
+    .presale__badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 30px;
+      padding: 1px 15px;
+      background: rgba(0, 102, 255, 0.21);
+      border: 1px solid #06f;
+      font-size: var(--text-caption);
+      line-height: var(--lh-tight);
+      font-weight: 400;
+      white-space: nowrap;
+      color: #fff;
+    }
+    .presale__title {
+      margin: 0;
+      font-weight: 400;
+      font-size: var(--text-h2);
+      line-height: var(--lh-h2);
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .presale__title em {
+      font-style: normal;
+      color: var(--blue);
+    }
+    .presale__cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 180px;
+      height: var(--btn-cta);
+      margin: 14px 16px 0;
+      justify-self: start;
+      padding: 0 28px;
+      background: var(--blue);
+      color: #fff;
+      font-size: var(--text-button);
+      line-height: var(--lh-tight);
+      font-weight: 500;
+      transition: background 0.2s var(--ease);
+    }
+    .presale__cta:hover {
+      background: #1a75ff;
+    }
+
+    @media (min-width: 960px) {
+      .presale {
+        grid-template-columns: 320px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0 26px;
+        padding: 1px 40px 1px 1px;
+      }
+      .presale__media {
+        width: 320px;
+        height: 168px;
+      }
+      .presale__copy {
+        justify-items: start;
+        text-align: left;
+        padding: 0;
+        gap: 12px;
+      }
+      .presale__cta {
+        margin: 0;
+      }
+    }
+
+    @media (max-width: 479px) {
+      .presale__media {
+        height: 150px;
+      }
+      .presale__cta {
+        justify-self: stretch;
+        min-width: 0;
+        box-sizing: border-box;
       }
     }
 
@@ -1539,7 +1687,14 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center center;
     }
+    /* Portrait assets — subject sits below the top band; per-card vertical anchor */
+    .skill-card:nth-child(1) .skill-card__img img { object-position: center 58%; } /* Кофейня — люди за стеклом */
+    .skill-card:nth-child(2) .skill-card__img img { object-position: center 78%; } /* Практика — кресла, не пустая стена */
+    .skill-card:nth-child(3) .skill-card__img img { object-position: center 88%; } /* Магазин — корабль, не потолок */
+    .skill-card:nth-child(4) .skill-card__img img { object-position: center 42%; } /* Недвижимость — картина и мебель */
+    .skill-card:nth-child(5) .skill-card__img img { object-position: center 62%; } /* Свой бизнес — кофе и фрукты */
     .skill-card__body {
       position: relative;
       border: 1px solid rgba(255, 255, 255, 0.35);
@@ -1702,6 +1857,7 @@
 
     /* ===== RESULTS / ОТЗЫВЫ ===== */
     #results {
+      display: none; /* temporarily hidden */
       padding: 64px 0 72px;
       background: var(--bg);
     }
@@ -1861,7 +2017,7 @@
       align-self: start;
     }
     .faq-photo img {
-      object-position: center 25%;
+      object-position: center top;
     }
     .faq-list {
       border-top: 1px solid rgba(255, 255, 255, 0.3);
@@ -1899,7 +2055,6 @@
       color: var(--muted);
       font-size: 14px;
       line-height: 1.45;
-      max-width: 52ch;
     }
     @media (prefers-reduced-motion: reduce) {
       .faq-item__a { transition: none !important; }
@@ -2266,14 +2421,14 @@
       <div class="hero__copy">
         <div class="hero-badge" data-reveal style="--reveal-delay: 80ms">
           <i aria-hidden="true"></i>
-          [ старт курса 1 июня ]
+          [ старт продаж 16&nbsp;ноября ]
         </div>
         <div class="hero__center">
           <h1 data-reveal style="--reveal-delay: 140ms"><span class="hero__h1-line">Мобильная съёмка:</span><span class="hero__h1-line">два уровня, один маршрут</span></h1>
           <p class="hero__sub" data-reveal style="--reveal-delay: 200ms">Школа визуального мышления BI13</p>
-          <p class="hero__lead" data-reveal style="--reveal-delay: 260ms">Контент — это язык современного мира.<br />Ты не учишься снимать, ты учишься замечать</p>
+          <p class="hero__lead" data-reveal style="--reveal-delay: 260ms">Контент — это язык современного мира<br />Ты не&nbsp;учишься снимать, ты учишься замечать</p>
         </div>
-        <a class="hero__cta" href="#pricing" data-reveal style="--reveal-delay: 320ms">Выбрать путь</a>
+        <a class="hero__cta" href="tg://resolve?domain=BI13PROBOT" data-reveal style="--reveal-delay: 320ms">Предзапись</a>
       </div>
     </div>
   </section>
@@ -2288,16 +2443,16 @@
           <img src="assets/audience-bg.webp" alt="" />
         </div>
         <div class="audience-band__cta">
-          <p>Aesthetic даёт фундамент. High Level — уверенность. Пакет — путь целиком, без паузы между шагами.</p>
-          <a class="btn-white" href="#path">Перейти на новый уровень</a>
+          <p>Aesthetic даёт фундамент. High Level — уверенность. Пакет — путь целиком, без паузы между шагами</p>
+          <a class="btn-white" href="#path">Перейти на&nbsp;новый уровень</a>
         </div>
       </div>
       <div class="audience-stage" id="audTrack" data-hscroll>
         <article class="aud-card" data-reveal>
           <div class="aud-card__img"><img src="assets/card-01.webp" alt="" loading="lazy" /></div>
-          <h3>С нуля</h3>
+          <h3>С&nbsp;нуля</h3>
           <div class="aud-card__row">
-            <p>Ещё не снимала эстетично — Aesthetic даст базу и систему.</p>
+            <p>Ещё не&nbsp;снимала эстетично — Aesthetic даст базу и&nbsp;систему</p>
             <span>01</span>
           </div>
         </article>
@@ -2305,7 +2460,7 @@
           <div class="aud-card__img"><img src="assets/card-02.webp" alt="" loading="lazy" /></div>
           <h3>Уже снимаю</h3>
           <div class="aud-card__row">
-            <p>Хочу вывести кадры на уровень, который можно показывать брендам.</p>
+            <p>Хочу вывести кадры на&nbsp;уровень, который можно показывать брендам</p>
             <span>02</span>
           </div>
         </article>
@@ -2313,7 +2468,7 @@
           <div class="aud-card__img"><img src="assets/card-03.webp" alt="" loading="lazy" /></div>
           <h3>Закрыть навык</h3>
           <div class="aud-card__row">
-            <p>Хочу пройти маршрут целиком — без паузы «что дальше».</p>
+            <p>Хочу пройти маршрут целиком — без паузы «что дальше»</p>
             <span>03</span>
           </div>
         </article>
@@ -2321,7 +2476,7 @@
           <div class="aud-card__img"><img src="assets/card-04.webp" alt="" loading="lazy" /></div>
           <h3>Для своего дела</h3>
           <div class="aud-card__row">
-            <p>Кофейня, практика, магазин — показать продукт без фотографа.</p>
+            <p>Кофейня, практика, магазин — показать продукт без фотографа</p>
             <span>04</span>
           </div>
         </article>
@@ -2338,10 +2493,10 @@
           <div class="path-card__body">
             <div class="path-card__meta">
               <span class="lvl">Уровень 1</span>
-              <span>база · 11 уроков</span>
+              <span>база · 11&nbsp;уроков</span>
             </div>
             <h3>Aesthetic</h3>
-            <p>Начинаешь снимать красиво и осознанно. Не случайно — системно.</p>
+            <p>Начинаешь снимать красиво и&nbsp;осознанно. Не&nbsp;случайно — системно</p>
           </div>
         </article>
         <article class="path-card" data-reveal style="--reveal-delay: 80ms">
@@ -2352,7 +2507,7 @@
               <span>продвинутый</span>
             </div>
             <h3>High Level</h3>
-            <p>Превращаешь навык в уверенность. Сложный свет, нестандартные локации, съёмка без ограничений.</p>
+            <p>Превращаешь навык в&nbsp;уверенность. Сложный свет, нестандартные локации, съёмка без ограничений</p>
           </div>
         </article>
       </div>
@@ -2372,17 +2527,17 @@
           <article class="prog">
             <span class="prog__num">01</span>
             <h4>Вводный урок</h4>
-            <p>Поговорим о том, зачем сегодня уметь снимать, как это помогает в работе, творчестве и повседневной жизни.</p>
+            <p>Поговорим о&nbsp;том, зачем сегодня уметь снимать, как это помогает в&nbsp;работе, творчестве и&nbsp;повседневной жизни</p>
           </article>
           <article class="prog">
             <span class="prog__num">02</span>
-            <h4>Что снимать? Я живу обычную жизнь</h4>
-            <p>Учимся замечать интересные детали вокруг и превращать обычные сцены в выразительные кадры.</p>
+            <h4>Что снимать? Я&nbsp;живу обычную жизнь</h4>
+            <p>Учимся замечать интересные детали вокруг и&nbsp;превращать обычные сцены в&nbsp;выразительные кадры</p>
           </article>
           <article class="prog">
             <span class="prog__num">03</span>
             <h4>Монетизация мобильного контента</h4>
-            <p>Поговорим о том, где живёт мобильный контент, почему одни форматы становятся вирусными, а другие проходят мимо.</p>
+            <p>Поговорим о&nbsp;том, где живёт мобильный контент, почему одни форматы становятся вирусными, а&nbsp;другие проходят мимо</p>
           </article>
           <article class="prog prog--photo">
             <img src="assets/program-photo.webp" alt="" loading="lazy" />
@@ -2390,48 +2545,48 @@
           <article class="prog">
             <span class="prog__num">04</span>
             <h4>Технический урок</h4>
-            <p>Пошагово разберём основные параметры съёмки — свет, экспозицию, фокус, формат — и научимся использовать их осознанно.</p>
+            <p>Пошагово разберём основные параметры съёмки — свет, экспозицию, фокус, формат — и&nbsp;научимся использовать их осознанно</p>
           </article>
           <article class="prog prog--tint">
             <span class="prog__num">05</span>
             <h4>Подготовка</h4>
-            <p>Как выбрать локацию, свет, фон и композицию. Работаем с кадром ещё до начала съёмки.</p>
+            <p>Как выбрать локацию, свет, фон и&nbsp;композицию. Работаем с&nbsp;кадром ещё до&nbsp;начала съёмки</p>
           </article>
           <article class="prog">
             <span class="prog__num">06</span>
             <h4>Практика 1</h4>
-            <p>Пробуем разные ракурсы, движение камеры и планы. Учимся понимать, почему одни кадры работают, а другие — нет.</p>
+            <p>Пробуем разные ракурсы, движение камеры и&nbsp;планы. Учимся понимать, почему одни кадры работают, а&nbsp;другие — нет</p>
           </article>
           <article class="prog">
             <span class="prog__num">07</span>
             <h4>Практика 2</h4>
-            <p>Работаем с цветом и освещением, пробуем снимать с опорой на движение, добавляем штатив и эксперименты с композицией.</p>
+            <p>Работаем с&nbsp;цветом и&nbsp;освещением, пробуем снимать с&nbsp;опорой на&nbsp;движение, добавляем штатив и&nbsp;эксперименты с&nbsp;композицией</p>
           </article>
           <article class="prog">
             <span class="prog__num">08</span>
             <h4>Обработка фото</h4>
-            <p>Разберём базовые приёмы мобильной ретуши, баланс цвета и света, работу с тоном и настроением изображения.</p>
+            <p>Разберём базовые приёмы мобильной ретуши, баланс цвета и&nbsp;света, работу с&nbsp;тоном и&nbsp;настроением изображения</p>
           </article>
           <article class="prog">
             <span class="prog__num">09</span>
             <h4>Обработка видео</h4>
-            <p>Учимся выстраивать ритм, добавлять звук и переходы. Говорим про динамику, атмосферу и баланс длительности.</p>
+            <p>Учимся выстраивать ритм, добавлять звук и&nbsp;переходы. Говорим про динамику, атмосферу и&nbsp;баланс длительности</p>
           </article>
           <article class="prog">
             <span class="prog__num">10</span>
             <h4>Визуал</h4>
-            <p>Разбираем визуальные принципы, композицию и последовательность подачи. Ищем свой ритм и стиль.</p>
+            <p>Разбираем визуальные принципы, композицию и&nbsp;последовательность подачи. Ищем свой ритм и&nbsp;стиль</p>
           </article>
           <article class="prog prog--tint">
             <span class="prog__num">11</span>
             <h4>Бонусный урок</h4>
-            <p>Подводим итоги, собираем все навыки в систему, обсуждаем развитие и идеи для дальнейшей съёмки.</p>
+            <p>Подводим итоги, собираем все навыки в&nbsp;систему, обсуждаем развитие и&nbsp;идеи для дальнейшей съёмки</p>
           </article>
         </div>
       </div>
 
       <div class="panel" id="panel-highlevel" role="tabpanel" hidden>
-        <p class="program-note">6 модулей, которые превращают умение «снимать для себя» в системный навык работы с контентом. Доступ — после Aesthetic в рамках одного потока.</p>
+        <p class="program-note">6&nbsp;модулей, которые превращают умение «снимать для себя» в&nbsp;системный навык работы с&nbsp;контентом. Доступ — после Aesthetic в&nbsp;рамках одного потока</p>
         <div class="program-grid">
           <article class="prog">
             <span class="prog__num">01</span>
@@ -2453,11 +2608,11 @@
           </article>
           <article class="prog prog--tint">
             <span class="prog__num">03</span>
-            <h4>Практика (4 урока)</h4>
+            <h4>Практика (4&nbsp;урока)</h4>
             <ul>
-              <li>Съёмка в фото студии — работаем с искусственным светом</li>
+              <li>Съёмка в&nbsp;фото студии — работаем с&nbsp;искусственным светом</li>
               <li>Съёмка дома</li>
-              <li>Съёмка на улице</li>
+              <li>Съёмка на&nbsp;улице</li>
               <li>Спецэффекты — простые приемы, которые помогут сделать ваш контент интереснее</li>
             </ul>
           </article>
@@ -2466,13 +2621,13 @@
           </article>
           <article class="prog">
             <span class="prog__num">04</span>
-            <h4>UGC и коммерция</h4>
+            <h4>UGC и&nbsp;коммерция</h4>
             <ul>
               <li>Что такое UGC</li>
               <li>Почему бренды используют UGC</li>
               <li>Как бренды используют контент</li>
               <li>Анализ UGC-контента</li>
-              <li>Практика по реальным брифам</li>
+              <li>Практика по&nbsp;реальным брифам</li>
             </ul>
           </article>
           <article class="prog">
@@ -2520,26 +2675,26 @@
         <div class="format-features">
           <article class="format-feature">
             <span class="format-feature__mark">&gt;</span>
-            <h3>Видеоуроки в записи</h3>
-            <p>Смотришь в своём темпе, в любое время</p>
+            <h3>Видеоуроки в&nbsp;записи</h3>
+            <p>Смотришь в&nbsp;своём темпе, в&nbsp;любое время</p>
           </article>
           <article class="format-feature">
             <span class="format-feature__mark">&gt;</span>
             <h3>Практические задания</h3>
-            <p>После каждой ступени — неделя на сдачу ДЗ</p>
+            <p>После каждой ступени — неделя на&nbsp;сдачу ДЗ</p>
           </article>
           <article class="format-feature">
             <span class="format-feature__mark">&gt;</span>
             <h3>Обратная связь</h3>
-            <p>В тарифах с ОС: эфир с Настей + личная проверка ДЗ</p>
+            <p>В&nbsp;тарифах с&nbsp;ОС: эфир с&nbsp;Настей + личная проверка ДЗ</p>
           </article>
           <article class="format-feature">
             <span class="format-feature__mark">&gt;</span>
-            <h3>Доступ к материалам</h3>
-            <p>После High Level — ещё 14 дней для пересдачи и вопросов</p>
+            <h3>Доступ к&nbsp;материалам</h3>
+            <p>После High Level — ещё 14&nbsp;дней для пересдачи и&nbsp;вопросов</p>
           </article>
         </div>
-        <a class="format-panel__cta" href="#pricing">Выбрать тариф</a>
+        <a class="format-panel__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
       </div>
     </div>
   </section>
@@ -2547,7 +2702,7 @@
   <section class="section" id="skill" aria-labelledby="skill-title">
     <div class="wrap">
       <div class="skill-head">
-        <h2 class="section-title" id="skill-title" data-reveal>Навык, который ты заберёшь с собой в любую профессию</h2>
+        <h2 class="section-title" id="skill-title" data-reveal>Навык, который ты заберёшь с&nbsp;собой в&nbsp;любую профессию</h2>
       </div>
     </div>
     <div class="wrap">
@@ -2556,7 +2711,7 @@
           <div class="skill-card__img"><img src="assets/skill/s1.webp" alt="" loading="lazy" /></div>
           <div class="skill-card__body">
             <h3>Кофейня</h3>
-            <p>Показать продукт и атмосферу без фотографа и отдельного бюджета.</p>
+            <p>Показать продукт и&nbsp;атмосферу без фотографа и&nbsp;отдельного бюджета</p>
             <span class="skill-card__num">1</span>
           </div>
         </article>
@@ -2564,7 +2719,7 @@
           <div class="skill-card__img"><img src="assets/skill/s2.webp" alt="" loading="lazy" /></div>
           <div class="skill-card__body">
             <h3>Практика</h3>
-            <p>Психолог, эксперт, консультант — контент, который вызывает доверие.</p>
+            <p>Психолог, эксперт, консультант — контент, который вызывает доверие</p>
             <span class="skill-card__num">2</span>
           </div>
         </article>
@@ -2572,7 +2727,7 @@
           <div class="skill-card__img"><img src="assets/skill/s3.webp" alt="" loading="lazy" /></div>
           <div class="skill-card__body">
             <h3>Магазин</h3>
-            <p>Украшения, одежда, продукт — кадры, которые можно сразу ставить в сетку.</p>
+            <p>Украшения, одежда, продукт — кадры, которые можно сразу ставить в&nbsp;сетку</p>
             <span class="skill-card__num">3</span>
           </div>
         </article>
@@ -2580,7 +2735,7 @@
           <div class="skill-card__img"><img src="assets/skill/s4.webp" alt="" loading="lazy" /></div>
           <div class="skill-card__body">
             <h3>Недвижимость</h3>
-            <p>Объекты и сервис выглядят дорого — снимаешь на телефон.</p>
+            <p>Объекты и&nbsp;сервис выглядят дорого — снимаешь на&nbsp;телефон</p>
             <span class="skill-card__num">4</span>
           </div>
         </article>
@@ -2588,7 +2743,7 @@
           <div class="skill-card__img"><img src="assets/skill/s5.webp" alt="" loading="lazy" /></div>
           <div class="skill-card__body">
             <h3>Свой бизнес</h3>
-            <p>Сменишь профессию или страну — умение показать себя останется с тобой.</p>
+            <p>Сменишь профессию или страну — умение показать себя останется с&nbsp;тобой</p>
             <span class="skill-card__num">5</span>
           </div>
         </article>
@@ -2598,97 +2753,106 @@
 
   <section class="section" id="pricing">
     <div class="wrap">
-      <h2 class="section-title" data-reveal>Выбери свой вход</h2>
-
-      <div class="pricing-packs">
-        <article class="tariff tariff--pack" data-reveal>
-          <span class="tariff__badge tariff__badge--light">без обратной связи</span>
-          <div class="tariff__intro">
-            <h3 class="tariff__title">Aesthetic + High Level</h3>
-            <p class="tariff__desc">Полный маршрут видеоуроков — без паузы «что дальше».</p>
-          </div>
-          <div class="tariff__pay">
-            <div class="tariff__price">21 990 ₽</div>
-            <a class="tariff__cta" href="tg://resolve?domain=BI13PROBOT" target="_blank" rel="noopener">Перейти в бот предзаписи</a>
-          </div>
-          <div class="tariff__incl">
-            <p class="tariff__incl-label">Что включено:</p>
-            <ul class="tariff__list">
-              <li>Уровень 1 + Уровень 2</li>
-              <li>Видеоуроки Aesthetic и High Level</li>
-              <li>Путь целиком в одном потоке</li>
-              <li>Пакетом сразу дешевле, чем докупать потом</li>
-            </ul>
-          </div>
-        </article>
-
-        <article class="tariff tariff--pack tariff--featured" data-reveal style="--reveal-delay: 80ms">
-          <span class="tariff__badge">с обратной связью</span>
-          <div class="tariff__intro">
-            <h3 class="tariff__title">Aesthetic + High Level</h3>
-            <p class="tariff__desc">Главный вход: оба уровня, личная проверка и отдельный эфир с Настей.</p>
-          </div>
-          <div class="tariff__pay">
-            <div class="tariff__price">34 990 ₽</div>
-            <a class="tariff__cta" href="tg://resolve?domain=BI13PROBOT" target="_blank" rel="noopener">Перейти в бот предзаписи</a>
-          </div>
-          <div class="tariff__incl">
-            <p class="tariff__incl-label">Что включено:</p>
-            <ul class="tariff__list">
-              <li>Уровень 1 + Уровень 2</li>
-              <li>Личная проверка ДЗ</li>
-              <li>Отдельный эфир с Настей</li>
-              <li>Встреча / разбор в потоке</li>
-            </ul>
-          </div>
-        </article>
+      <div class="presale" data-reveal>
+        <i aria-hidden="true"></i>
+        <figure class="presale__media" aria-hidden="true">
+          <img src="assets/final/img-tr.webp" alt="" loading="lazy" />
+        </figure>
+        <div class="presale__copy">
+          <p class="presale__badge">[ продажи закрыты ]</p>
+          <h2 class="presale__title">Старт продаж — <em>16&nbsp;ноября</em></h2>
+        </div>
+        <a class="presale__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
       </div>
 
-      <p class="pricing-bridge" data-reveal>[ Начни с малого, если сомневаешься ]</p>
+      <!-- ТАРИФЫ СКРЫТЫ ДО 16 НОЯБРЯ. Вернуть: раскомментировать блок ниже и удалить .presale выше.
+      <div class="pricing-group" data-reveal>
+        <div class="pricing-group__head">
+          <p class="pricing-group__title">Весь путь: Aesthetic + High Level</p>
+          <p class="pricing-group__sub">оба уровня в&nbsp;одном потоке, без паузы между ними</p>
+        </div>
 
-      <div class="pricing-starter">
-        <article class="tariff tariff--mini" data-reveal>
-          <span class="tariff__badge tariff__badge--light">без обратной связи</span>
-          <div class="tariff__intro">
-            <h3 class="tariff__title">Aesthetic</h3>
-            <p class="tariff__desc">Для тех, кто хочет научиться снимать эстетично и идти в своём ритме.</p>
-          </div>
-          <div class="tariff__pay">
-            <div class="tariff__price">14 990 ₽</div>
-            <a class="tariff__cta" href="tg://resolve?domain=BI13PROBOT" target="_blank" rel="noopener">Перейти в бот предзаписи</a>
-          </div>
-          <div class="tariff__incl">
-            <p class="tariff__incl-label">Что включено:</p>
-            <ul class="tariff__list">
-              <li>Уровень 1 · Aesthetic — видеоуроки</li>
-              <li>Старт сразу после покупки</li>
-              <li>Доступ к материалам Aesthetic</li>
-              <li>Апгрейд до High Level позже из ЛК</li>
-            </ul>
-          </div>
-        </article>
+        <div class="pricing-packs">
+          <article class="tariff tariff--pack" data-reveal>
+            <h3 class="tariff__title">без обратной связи</h3>
+            <div class="tariff__pay">
+              <div class="tariff__price-wrap">
+                <div class="tariff__price">21 990&nbsp;₽</div>
+                <p class="tariff__price-old"><s>26 980&nbsp;₽</s> по&nbsp;отдельности</p>
+                <p class="tariff__price-save">экономия 4 990&nbsp;₽</p>
+                <p class="tariff__price-note">картой сразу или в&nbsp;рассрочку</p>
+              </div>
+              <a class="tariff__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
+            </div>
+            <div class="tariff__incl">
+              <p class="tariff__incl-label">Входит</p>
+              <ul class="tariff__list">
+                <li>Уровень 1 + Уровень 2</li>
+                <li>Видеоуроки Aesthetic и&nbsp;High Level</li>
+                <li>Путь целиком в&nbsp;одном потоке</li>
+              </ul>
+            </div>
+          </article>
 
-        <article class="tariff tariff--mini" data-reveal style="--reveal-delay: 80ms">
-          <span class="tariff__badge">с обратной связью</span>
-          <div class="tariff__intro">
-            <h3 class="tariff__title">Aesthetic</h3>
-            <p class="tariff__desc">С поддержкой — уверенность и разбор работ на ступени.</p>
-          </div>
-          <div class="tariff__pay">
-            <div class="tariff__price">24 990 ₽</div>
-            <a class="tariff__cta" href="tg://resolve?domain=BI13PROBOT" target="_blank" rel="noopener">Перейти в бот предзаписи</a>
-          </div>
-          <div class="tariff__incl">
-            <p class="tariff__incl-label">Что включено:</p>
-            <ul class="tariff__list">
-              <li>Всё из тарифа Aesthetic без обратной связи</li>
-              <li>Личная проверка домашних заданий</li>
-              <li>Обратная связь на ступени Aesthetic</li>
-              <li>Апгрейд до полного пути позже из ЛК</li>
-            </ul>
-          </div>
-        </article>
+          <article class="tariff tariff--pack tariff--featured" data-reveal style="--reveal-delay: 80ms">
+            <span class="tariff__badge">рекомендуем</span>
+            <h3 class="tariff__title">с&nbsp;обратной связью</h3>
+            <div class="tariff__pay">
+              <div class="tariff__price-wrap">
+                <div class="tariff__price">34 990&nbsp;₽</div>
+                <p class="tariff__price-old"><s>44 980&nbsp;₽</s> по&nbsp;отдельности</p>
+                <p class="tariff__price-save">экономия 9 990&nbsp;₽</p>
+                <p class="tariff__price-note">картой сразу или в&nbsp;рассрочку</p>
+              </div>
+              <a class="tariff__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
+            </div>
+            <div class="tariff__incl">
+              <p class="tariff__incl-label">Дополнительно к&nbsp;тарифу без обратной связи</p>
+              <ul class="tariff__list">
+                <li>Личная проверка ДЗ</li>
+                <li>Отдельный эфир с&nbsp;Настей</li>
+                <li>Встреча / разбор в&nbsp;потоке</li>
+              </ul>
+            </div>
+          </article>
+        </div>
       </div>
+
+      <div class="pricing-group" data-reveal>
+        <div class="pricing-group__head">
+          <p class="pricing-group__title">Только Aesthetic, без второй ступени</p>
+          <p class="pricing-group__sub">апгрейд до&nbsp;полного пути доступен позже из&nbsp;личного кабинета</p>
+        </div>
+
+        <div class="pricing-starter">
+          <article class="tariff tariff--mini" data-reveal>
+            <div class="tariff__intro">
+              <h3 class="tariff__title">Aesthetic без обратной связи</h3>
+            </div>
+            <div class="tariff__pay">
+              <div class="tariff__price-wrap">
+                <div class="tariff__price">14 990&nbsp;₽</div>
+                <p class="tariff__price-note">картой сразу или в&nbsp;рассрочку</p>
+              </div>
+              <a class="tariff__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
+            </div>
+          </article>
+
+          <article class="tariff tariff--mini" data-reveal style="--reveal-delay: 80ms">
+            <div class="tariff__intro">
+              <h3 class="tariff__title">Aesthetic с&nbsp;обратной связью</h3>
+            </div>
+            <div class="tariff__pay">
+              <div class="tariff__price-wrap">
+                <div class="tariff__price">24 990&nbsp;₽</div>
+                <p class="tariff__price-note">картой сразу или в&nbsp;рассрочку</p>
+              </div>
+              <a class="tariff__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
+            </div>
+          </article>
+        </div>
+      </div>
+      -->
     </div>
   </section>
 
@@ -2701,12 +2865,12 @@
         <span class="speaker__label">Кто ведёт</span>
         <h2 class="speaker__name">Настя Бебякина</h2>
         <p class="speaker__bio">
-          Школа фотографии и контента BI13 PRO. 83&nbsp;000+ подписчиков.
-          Начинала с телефона — без профессионального образования.
+          Школа фотографии и&nbsp;контента BI13&nbsp;PRO. 83&nbsp;000+ подписчиков.
+          Начинала с&nbsp;телефона — без профессионального образования
         </p>
         <div class="speaker__quote-box">
           <blockquote class="speaker__quote">
-            «Я учу не просто снимать. Я показываю, как начать замечать.»
+            «Я&nbsp;учу не&nbsp;просто снимать. Я&nbsp;показываю, как начать замечать.»
             <cite>— идейный вдохновитель курса</cite>
           </blockquote>
         </div>
@@ -2724,9 +2888,9 @@
         </span>
         <h2 class="results__title" id="results-title">Как ты изменишься после курса</h2>
         <p class="results__lead">
-          Истории участников доказывают: <strong>главное — навык.</strong> Он остаётся с вами и работает всегда
+          Истории участников доказывают: <strong>главное — навык.</strong> Он остаётся с&nbsp;вами и&nbsp;работает всегда
         </p>
-        <a class="results__cta" href="#pricing">Хочу такие же результаты</a>
+        <a class="results__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
       </div>
       <div class="results__cards" id="reviewTrack" data-hscroll>
         <article class="review-card" data-reveal>
@@ -2739,8 +2903,8 @@
               <p class="review-card__role">фотограф</p>
             </div>
           </div>
-          <p class="review-card__quote">«Теперь я не завишу от времени суток»</p>
-          <p class="review-card__text">Снимала только при дневном свете → научилась работать с искусственным светом, теперь делает контент в любых условиях</p>
+          <p class="review-card__quote">«Теперь я&nbsp;не завишу от&nbsp;времени суток»</p>
+          <p class="review-card__text">Снимала только при дневном свете → научилась работать с&nbsp;искусственным светом, теперь делает контент в&nbsp;любых условиях</p>
         </article>
         <article class="review-card" data-reveal style="--reveal-delay: 70ms">
           <div class="review-card__person">
@@ -2753,7 +2917,7 @@
             </div>
           </div>
           <p class="review-card__quote">«Перестала бояться съёмок ночью — выходит реально красиво»</p>
-          <p class="review-card__text">Снимала для блога «для себя» → получила первые заказы, потому что освоила UGC-форматы и показала портфолио</p>
+          <p class="review-card__text">Снимала для блога «для себя» → получила первые заказы, потому что освоила UGC-форматы и&nbsp;показала портфолио</p>
         </article>
         <article class="review-card" data-reveal style="--reveal-delay: 140ms">
           <div class="review-card__person">
@@ -2765,8 +2929,8 @@
               <p class="review-card__role">блогер</p>
             </div>
           </div>
-          <p class="review-card__quote">«Понял: могу снимать и дома, и на улице, и бренды это берут»</p>
-          <p class="review-card__text">Делал ролики ради фана → после курса собрал готовое портфолио и уверенно берёт заказы</p>
+          <p class="review-card__quote">«Понял: могу снимать и&nbsp;дома, и&nbsp;на улице, и&nbsp;бренды это берут»</p>
+          <p class="review-card__text">Делал ролики ради фана → после курса собрал готовое портфолио и&nbsp;уверенно берёт заказы</p>
         </article>
       </div>
     </div>
@@ -2783,31 +2947,31 @@
           <div class="faq-item">
             <button type="button" class="faq-item__q" aria-expanded="false">Можно купить только Aesthetic?</button>
             <div class="faq-item__a">
-              <p>Да. Доплатить и добрать High Level можно позже (условия добора уточняются).</p>
+              <p>Да. Доплатить и&nbsp;добрать High Level можно позже (условия добора уточняются)</p>
             </div>
           </div>
           <div class="faq-item">
-            <button type="button" class="faq-item__q" aria-expanded="false">Что если не успею сдать ДЗ?</button>
+            <button type="button" class="faq-item__q" aria-expanded="false">Что если не&nbsp;успею сдать ДЗ?</button>
             <div class="faq-item__a">
-              <p>На каждую ступень — отдельная неделя на сдачу ДЗ и эфир с Настей.</p>
+              <p>На&nbsp;каждую ступень — отдельная неделя на&nbsp;сдачу ДЗ и&nbsp;эфир с&nbsp;Настей</p>
             </div>
           </div>
           <div class="faq-item">
-            <button type="button" class="faq-item__q" aria-expanded="false">Что входит в месяц доступа после High Level?</button>
+            <button type="button" class="faq-item__q" aria-expanded="false">Что входит в&nbsp;месяц доступа после High Level?</button>
             <div class="faq-item__a">
-              <p>Пересдача ДЗ и возможность задать вопросы Насте.</p>
+              <p>Пересдача ДЗ и&nbsp;возможность задать вопросы Насте</p>
             </div>
           </div>
           <div class="faq-item">
-            <button type="button" class="faq-item__q" aria-expanded="false">Чем Aesthetic отличается от High Level?</button>
+            <button type="button" class="faq-item__q" aria-expanded="false">Чем Aesthetic отличается от&nbsp;High Level?</button>
             <div class="faq-item__a">
-              <p>Aesthetic — база: снимать красиво на телефон. High Level — продвинутый уровень: контент, который можно показывать брендам.</p>
+              <p>Aesthetic — база: снимать красиво на&nbsp;телефон. High Level — продвинутый уровень: контент, который можно показывать брендам</p>
             </div>
           </div>
           <div class="faq-item">
-            <button type="button" class="faq-item__q" aria-expanded="false">Нужна ли профессиональная техника?</button>
+            <button type="button" class="faq-item__q" aria-expanded="false">Нужна&nbsp;ли профессиональная техника?</button>
             <div class="faq-item__a">
-              <p>Нет, всё строится на съёмке на телефон.</p>
+              <p>Нет, всё строится на&nbsp;съёмке на&nbsp;телефон</p>
             </div>
           </div>
         </div>
@@ -2827,8 +2991,8 @@
       </div>
       <div class="final-center" data-reveal>
         <h2 id="final-title">Начни путь</h2>
-        <p>Ближайший поток: 1 июня. Продажи открыты<br />до&nbsp;17&nbsp;августа.</p>
-        <a class="final-center__cta" href="#pricing">Выбрать тариф</a>
+        <p>Продажи откроются 16&nbsp;ноября. Оставь предзапись</p>
+        <a class="final-center__cta" href="tg://resolve?domain=BI13PROBOT">Предзапись</a>
       </div>
       <div class="final-rail final-rail--right" aria-hidden="true">
         <span class="final-rail__line"></span>
@@ -3017,7 +3181,7 @@
       function isSameSiteHref(href) {
         if (!href) return true;
         if (href.charAt(0) === "#" || href.charAt(0) === "/" || href.charAt(0) === "?") return true;
-        if (href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0) return true;
+        if (href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0 || href.indexOf("tg:") === 0) return true;
         try {
           var url = new URL(href, window.location.href);
           var host = url.hostname.replace(/^www\./, "");
