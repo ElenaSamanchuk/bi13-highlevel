@@ -151,8 +151,15 @@ async function checkBi13(t, br) {
   if (!br.browser) { warn("рендер не проверен: " + br.skip); return; }
   const { ctx, page } = await openPage(br.browser, url);
   try {
-    const got = await page.locator("#page-root").getAttribute("data-sales");
-    got === expected ? ok(`#page-root[data-sales] = ${got}`) : bad(`#page-root[data-sales] = ${got}, ожидалось ${expected}`);
+    // одноблочная версия и GitHub Pages: #page-root; код в два блока Тильды: два корня .bi13p
+    const roots = page.locator("#page-root, .bi13p");
+    const rn = await roots.count();
+    if (!rn) bad("корень страницы (#page-root или .bi13p) не найден");
+    for (let i = 0; i < rn; i++) {
+      const got = await roots.nth(i).getAttribute("data-sales");
+      const label = rn > 1 ? `корень ${i + 1} из ${rn}` : "корень страницы";
+      got === expected ? ok(`${label}: data-sales = ${got}`) : bad(`${label}: data-sales = ${got}, ожидалось ${expected}`);
+    }
     const links = page.locator("a[data-pay]");
     const n = await links.count();
     let vis = 0; const hrefs = [];
@@ -230,13 +237,13 @@ async function checkKinezio(t, br) {
 
 // ---------- запуск ----------
 console.log(`Проверка запуска 16.11.2026 · сейчас: ${fmt(NOW)}${atArg ? " (подмена --at)" : ""}${salesArg ? " · ?sales=" + salesArg + " на GitHub Pages" : ""}`);
-console.log(`Ожидание по времени: BI13 — ${stateAt(NOW, BI13_OPEN, BI13_CLOSE)}, Kinezio — ${stateAt(NOW, KT_OPEN, KT_CLOSE)}. Режим: только чтение.`);
+console.log(`Ожидание по времени: BI13 — ${stateAt(NOW, BI13_OPEN, BI13_CLOSE)}. Режим: только чтение. Таплинк Kinezio — отдельный скрипт в ~/Projects/kinezio-taplink.`);
 const br = await launchBrowser();
 if (!br.browser) console.log("Браузер: нет — " + br.skip);
 try {
   for (const t of BI13_TARGETS) await checkBi13(t, br);
   await checkPayPages();
-  for (const t of KT_TARGETS) await checkKinezio(t, br);
+  // Kinezio таплинк проверяется своим скриптом: cd ~/Projects/kinezio-taplink && node scripts/check-launch.mjs
 } finally { if (br.browser) await br.browser.close(); }
 
 head(`ИТОГ: ✅ ${oks}  ⚠️ ${warns}  ❌ ${fails}`);

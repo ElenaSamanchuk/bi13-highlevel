@@ -15,7 +15,8 @@
 
 - BI13 (`bi13pro.ru/aesthetic-high-level`, GitHub Pages): наличие кода таймера (OPEN_MS=1794812400000, CLOSE_MS=1796072400000), ожидаемый вид по времени (до 16.11 10:00 МСК before, до 01.12 00:00 open, дальше after), `#page-root[data-sales]`, видимых `a[data-pay]` 4 в open и 0 иначе, адреса кнопок.
 - 4 страницы оплаты отвечают 200 (до 3 попыток по 40 с), все `lk.bi13pro.ru/payments/…/checkout` с них отвечают 200.
-- Kinezio таплинк (`kineziofitness.online/taplink`, GitHub Pages): `ktl-root` + OPEN_MS/CLOSE_MS=1796590800000, `data-sales`, в open видна ссылка `t.me/+jD2efeMN-5szMmZi` и «Старт 23 ноября», вне запуска `t.me/+jEUoHcbCU8xlNWUy` и «Старт после регистрации»; ссылки на kineziofitness.online из кода страницы отвечают 200.
+- `#page-root` (одноблочная версия, GitHub Pages) или оба корня `.bi13p` (код в два блока Тильды): у каждого корня нужный `data-sales`.
+- Таплинк Kinezio здесь больше не проверяется (13.11 сменились канал и шапка): отдельный скрипт `cd ~/Projects/kinezio-taplink && node scripts/check-launch.mjs`.
 
 ## Ограничения
 
