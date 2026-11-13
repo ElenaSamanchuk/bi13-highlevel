@@ -19,7 +19,10 @@ const GITHUB_REPO = "elenasamanchuk/bi13-highlevel";
 const GITHUB_REF = process.env.BI13_GITHUB_REF || "main";
 const FROM_LOCAL = process.env.BI13_FROM_LOCAL === "1";
 const GITHUB_RAW = `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_REF}/`;
-const PREFIX = "#bi13-inline-wrap";
+const DEFAULT_PREFIX = "#bi13-inline-wrap";
+const SPLIT_PREFIX = ".bi13w.bi13w"; // два корня подряд: общий класс вместо уникального id
+const DOCS_DIR = process.env.BI13_DOCS_DIR || path.join(process.env.HOME || "", "Projects", "Bi13", "docs");
+const SPLIT_NAME = "2026-11-16-КОД-для-Тильды-aesthetic-high-level-БЛОК";
 const VERSION = 45;
 const TILDA_HEADER_OFFSET = 80;
 
@@ -230,7 +233,7 @@ function minifyCss(css) {
   return css;
 }
 
-function transformCss(css) {
+function transformCss(css, PREFIX = DEFAULT_PREFIX, split = false) {
   css = css.replace(/url\("\.\/fonts\//g, `url("${BASE}fonts/`);
   css = removeIframeOnlyCss(css);
   css = removeHscrollArrowCss(css);
@@ -248,6 +251,7 @@ function transformCss(css) {
   );
   css = css.replace(/html \{ scroll-behavior: auto; \}/g, `${PREFIX} { scroll-behavior: auto; }`);
 
+  if (split) css = css.replace(/#page-root/g, ".bi13p");
   css = prefixCss(css, PREFIX);
 
   const wrapperRules = `
@@ -572,6 +576,63 @@ function buildJs() {
     })();`;
 }
 
+/** Версия JS для нескольких корней .bi13w (скрипт стоит только во 2-м блоке). */
+function toMultiRootJs(js) {
+  const head = 'var root = document.getElementById("bi13-inline-wrap");\n      if (!root) return;\n';
+  const scrollOld = 'var el = root.querySelector("#" + CSS.escape(id));\n        if (!el) el = document.getElementById(id);\n        if (!el || !root.contains(el)) return;';
+  const scrollNew = 'var el = document.getElementById(id);\n        if (!el || !el.closest(".bi13w")) return;';
+  const tail = "\n    })();";
+  if (!js.includes(head) || !js.includes(scrollOld) || !js.endsWith(tail)) throw new Error("buildJs changed: update toMultiRootJs");
+  js = js.replace(head, 'var roots = Array.prototype.slice.call(document.querySelectorAll(".bi13w"));\n      if (!roots.length) return;\n      roots.forEach(function (root) {\n');
+  js = js.replace(scrollOld, scrollNew);
+  return js.slice(0, -tail.length) + "\n      });\n    })();";
+}
+
+/** sales-state.js: применять data-sales ко всем .bi13p вместо #page-root. */
+function toMultiRootSales(sales) {
+  const old = '    var root = document.getElementById("page-root");\n    if (!root) return;\n    apply(root);\n    passParams(root);';
+  if (!sales.includes(old)) throw new Error("sales-state.js changed: update toMultiRootSales");
+  return sales.replace(old, '    var roots = document.querySelectorAll(".bi13p");\n    Array.prototype.forEach.call(roots, function (r) { apply(r); passParams(r); });');
+}
+
+function buildSplit(indexHtml, rawRoot, salesJs) {
+  const css = transformCss(extractStyle(indexHtml), SPLIT_PREFIX, true);
+  const full = transformHtml(stripHtmlComments(rawRoot));
+  const open = '<div id="page-root">';
+  const inner = full.slice(open.length, full.lastIndexOf("</div>"));
+  const starts = [];
+  const re = /<(section|footer)\b/g;
+  let m;
+  while ((m = re.exec(inner))) starts.push(m.index);
+  const closes = (inner.match(/<\/(section|footer)>/g) || []).length;
+  if (starts.length !== closes) throw new Error("nested section/footer: cannot split safely");
+  const js = toMultiRootJs(buildJs()) + "\n" + toMultiRootSales(salesJs);
+  const wrap = (body) => `<div class="bi13w"><div class="bi13p">${body}</div></div>`;
+  const bytes = (t) => Buffer.byteLength(t, "utf8");
+  const b1 = (k) => `<style>${css}\n</style>\n` + wrap(inner.slice(0, starts[k]).trimEnd()) + "\n";
+  const b2 = (k) => wrap(inner.slice(starts[k]).trim()) + `\n<script>${js}\n</script>\n`;
+  let best = null;
+  for (let k = 1; k < starts.length; k++) {
+    const worst = Math.max(bytes(b1(k)), bytes(b2(k)));
+    if (!best || worst < best.worst) best = { k, worst };
+  }
+  const k = best.k;
+  const idAfter = inner.slice(starts[k], starts[k] + 80).match(/id="([^"]+)"/);
+  const note = (n, t) => `<!-- Блок ${n} из 2 / вставлять в T123 ${n === 1 ? "выше блока 2" : "ниже блока 1"}. ${t} -->\n`;
+  const out1 = note(1, "Стили и первая половина страницы. Разрез перед секцией #" + (idAfter ? idAfter[1] : "?")) + b1(k);
+  const out2 = note(2, "Вторая половина страницы, таймер продаж и скрипты. Без блока 1 не работает.") + b2(k);
+  fs.mkdirSync(DOCS_DIR, { recursive: true });
+  const f1 = path.join(DOCS_DIR, `${SPLIT_NAME}-1.html`);
+  const f2 = path.join(DOCS_DIR, `${SPLIT_NAME}-2.html`);
+  fs.writeFileSync(f1, out1, "utf8");
+  fs.writeFileSync(f2, out2, "utf8");
+  const s1 = bytes(out1), s2 = bytes(out2);
+  console.log(`Split before section #${idAfter ? idAfter[1] : "?"}: block1 ${(s1 / 1024).toFixed(1)} KB, block2 ${(s2 / 1024).toFixed(1)} KB`);
+  console.log(f1 + "\n" + f2);
+  if (s1 > 90 * 1024 || s2 > 90 * 1024) console.warn("Warning: block above 90 KB target");
+  if (s1 > 100 * 1024 || s2 > 100 * 1024) throw new Error("split block exceeds 100 KB");
+}
+
 async function build() {
   try {
     execSync("git fetch origin main", { cwd: ROOT, stdio: "pipe" });
@@ -588,6 +649,7 @@ async function build() {
   const pageRoot = transformHtml(stripHtmlComments(extractPageRoot(indexHtml)));
   const salesJs = fs.readFileSync(path.join(ROOT, "sales-state.js"), "utf8");
   const js = buildJs() + "\n" + salesJs;
+  buildSplit(indexHtml, extractPageRoot(indexHtml), salesJs);
 
   const output = `<style>${css}
 </style>
