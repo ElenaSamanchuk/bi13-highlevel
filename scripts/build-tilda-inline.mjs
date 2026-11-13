@@ -660,11 +660,14 @@ async function build() {
 
   fs.writeFileSync(OUT_PATH, output, "utf8");
 
-  try {
-    fs.copyFileSync(OUT_PATH, DESKTOP_PATH);
-    console.log(`Copied to ${DESKTOP_PATH}`);
-  } catch (err) {
-    console.warn(`Could not copy to Desktop: ${err.message}`);
+  // Копия на Рабочий стол — только по явному флагу BI13_COPY_DESKTOP=1 (13.11.2026: не перезаписывать файлы Елены)
+  if (process.env.BI13_COPY_DESKTOP === "1") {
+    try {
+      fs.copyFileSync(OUT_PATH, DESKTOP_PATH);
+      console.log(`Copied to ${DESKTOP_PATH}`);
+    } catch (err) {
+      console.warn(`Could not copy to Desktop: ${err.message}`);
+    }
   }
 
   const stats = fs.statSync(OUT_PATH);
