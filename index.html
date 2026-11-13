@@ -3063,7 +3063,7 @@
       var HSCROLL_TYPE = "bi13-hscroll";
       var DESIGN_W = 320;
       var TILDA_320_MAX = 479;
-      var inIframe = window.parent && window.parent !== window;
+      var inIframe = window.parent && window.parent !== window && !/[?&]standalone=1/.test(location.search);
       var lastHeight = 0;
       var heightRaf = 0;
       var parentWidth = 0;

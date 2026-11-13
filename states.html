@@ -47,7 +47,7 @@
   var now = Date.now();
   document.getElementById('now').textContent = 'Сейчас по времени: ' + (now < OPEN ? 'до продаж' : now < CLOSE ? 'продажи открыты' : 'продажи закрыты');
   function render() {
-    document.getElementById('f').src = './' + (s ? '?sales=' + s : '');
+    document.getElementById('f').src = './?standalone=1' + (s ? '&sales=' + s : '');
     document.getElementById('wrap').className = 'frame' + (d === 'phone' ? ' phone' : '');
     document.querySelectorAll('[data-s]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.s === s)); });
     document.querySelectorAll('[data-d]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.d === d)); });
