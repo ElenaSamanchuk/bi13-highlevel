@@ -376,8 +376,7 @@ async function build() {
   const pageContent = transformHtml(extractPageContent(indexHtml));
   const js = buildJs();
 
-  const output = `<!-- BI13 Taplink inline T123 v${VERSION} · assets: ${BASE} -->
-<style>${css}
+  const output = `<style>${css}
 </style>
 <div id="bi13-taplink-wrap">${pageContent}</div>
 <script>${js}
