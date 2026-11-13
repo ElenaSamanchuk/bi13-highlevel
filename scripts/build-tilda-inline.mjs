@@ -265,7 +265,7 @@ function transformCss(css) {
 }
 
 function transformHtml(html) {
-  return html.replace(/src="assets\//g, `src="${BASE}assets/`);
+  return html.replace(/(\s(?:data-)?src|\sposter)="assets\//g, `$1="${BASE}assets/`);
 }
 
 function buildJs() {
@@ -517,7 +517,47 @@ function buildJs() {
         });
       }
 
+      function bootLifeStrip() {
+        var strip = root.querySelector("#lifeStrip");
+        if (!strip || strip.dataset.cloned) return;
+        strip.dataset.cloned = "1";
+        Array.prototype.slice.call(strip.children).forEach(function (item) {
+          var clone = item.cloneNode(true);
+          clone.setAttribute("aria-hidden", "true");
+          strip.appendChild(clone);
+        });
+      }
+
+      function bootLazyVideo() {
+        var videos = Array.prototype.slice.call(root.querySelectorAll("video[data-lazy-video]"));
+        if (!videos.length || prefersReducedMotion()) return;
+        function play(v) {
+          if (!v.getAttribute("src") && v.dataset.src) v.src = v.dataset.src;
+          var p = v.play();
+          if (p && p.catch) p.catch(function () {});
+        }
+        if (typeof IntersectionObserver === "undefined") {
+          videos.forEach(play);
+          return;
+        }
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (e) {
+              var v = e.target;
+              if (e.isIntersecting) play(v);
+              else if (v.getAttribute("src")) v.pause();
+            });
+          },
+          { rootMargin: "300px 0px" }
+        );
+        videos.forEach(function (v) {
+          io.observe(v);
+        });
+      }
+
       function boot() {
+        bootLifeStrip();
+        bootLazyVideo();
         bootHscrollDrag();
         applyLinkTargets();
         bootReveal();
